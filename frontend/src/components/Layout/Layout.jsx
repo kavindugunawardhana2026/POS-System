@@ -5,19 +5,19 @@ import { useTheme } from '@/context/ThemeContext'
 import './Layout.css'
 
 const ALL_NAV = [
-  { to: '/',          module: null,       label: 'nav.dashboard',  icon: '📊' },
-  { to: '/pos',       module: 'pos',      label: 'nav.pos',        icon: '🛒' },
-  { to: '/products',  module: 'products', label: 'nav.products',   icon: '📦' },
-  { to: '/invoices',  module: 'invoices', label: 'nav.invoices',   icon: '🧾' },
-  { to: '/returns',   module: 'returns',  label: 'nav.returns',    icon: '↩️' },
-  { to: '/customers', module: 'customers',label: 'nav.customers',  icon: '👥' },
-  { to: '/suppliers', module: 'suppliers',label: 'nav.suppliers',  icon: '🏭' },
-  { to: '/purchases', module: 'purchases',label: 'nav.purchases',  icon: '📥' },
-  { to: '/reports',   module: 'reports',  label: 'nav.reports',    icon: '📈' },
-  { to: '/shifts',    module: 'reports',  label: 'Shifts',         icon: '🕒', adminOnly: true },
-  { to: '/promotions',module: 'settings', label: 'Promotions',     icon: '🏷️', adminOnly: true },
-  { to: '/users',     module: 'users',    label: 'nav.users',      icon: '🧑‍💼', adminOnly: true },
-  { to: '/settings',  module: 'settings', label: 'nav.settings',   icon: '⚙️', adminOnly: true },
+  { to: '/', module: null, label: 'nav.dashboard', icon: '📊' },
+  { to: '/pos', module: 'pos', label: 'nav.pos', icon: '🛒' },
+  { to: '/products', module: 'products', label: 'nav.products', icon: '📦' },
+  { to: '/invoices', module: 'invoices', label: 'nav.invoices', icon: '🧾' },
+  { to: '/returns', module: 'returns', label: 'nav.returns', icon: '↩️' },
+  { to: '/customers', module: 'customers', label: 'nav.customers', icon: '👥' },
+  { to: '/suppliers', module: 'suppliers', label: 'nav.suppliers', icon: '🏭' },
+  { to: '/purchases', module: 'purchases', label: 'nav.purchases', icon: '📥' },
+  { to: '/reports', module: 'reports', label: 'nav.reports', icon: '📈' },
+  { to: '/shifts', module: 'reports', label: 'Shifts', icon: '🕒', adminOnly: true },
+  { to: '/promotions', module: 'settings', label: 'Promotions', icon: '🏷️', adminOnly: true },
+  { to: '/users', module: 'users', label: 'nav.users', icon: '🧑‍💼', adminOnly: true },
+  { to: '/settings', module: 'settings', label: 'nav.settings', icon: '⚙️', adminOnly: true },
 ]
 
 export default function Layout() {
@@ -45,8 +45,8 @@ export default function Layout() {
     <div className="layout">
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <span className="logo-icon">🏪</span>
-          <span className="logo-text">POS System</span>
+          <span className="logo-icon">🖥️🖨️</span>
+          <span className="logo-text">ROVTAD_POS</span>
         </div>
 
         <nav className="sidebar-nav">
@@ -73,9 +73,9 @@ export default function Layout() {
               <span className="user-role">{user?.role}</span>
             </div>
             <div style={{ display: 'flex', gap: '4px' }}>
-              <select 
-                className="lang-switcher" 
-                value={i18n.language} 
+              <select
+                className="lang-switcher"
+                value={i18n.language}
                 onChange={e => changeLanguage(e.target.value)}
                 title="Change Language"
               >
