@@ -1,4 +1,5 @@
 import { forwardRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import './Receipt.css'
 
 /**
@@ -18,6 +19,7 @@ import './Receipt.css'
  *  { store_name, address, phone, receipt_header, receipt_footer, thermal_printer }
  */
 const Receipt = forwardRef(function Receipt({ invoice, shopInfo, paperWidth }, ref) {
+  const { t } = useTranslation()
   if (!invoice) return null
 
   const shop    = shopInfo || {}
@@ -59,30 +61,30 @@ const Receipt = forwardRef(function Receipt({ invoice, shopInfo, paperWidth }, r
       {/* ── Meta ── */}
       <div className="rct-meta">
         <div className="rct-meta-row">
-          <span>Invoice#</span>
+          <span>{t('receipt.invoice', 'Invoice')}#</span>
           <span>{invoice.invoice_number}</span>
         </div>
         <div className="rct-meta-row">
-          <span>Date</span>
+          <span>{t('receipt.date', 'Date')}</span>
           <span>{dateStr}</span>
         </div>
         <div className="rct-meta-row">
-          <span>Time</span>
+          <span>{t('receipt.time', 'Time')}</span>
           <span>{timeStr}</span>
         </div>
         <div className="rct-meta-row">
-          <span>Cashier</span>
+          <span>{t('receipt.cashier', 'Cashier')}</span>
           <span>{invoice.cashier || '—'}</span>
         </div>
         {invoice.customer_name && (
           <div className="rct-meta-row">
-            <span>Customer</span>
+            <span>{t('receipt.customer', 'Customer')}</span>
             <span>{invoice.customer_name}</span>
           </div>
         )}
         <div className="rct-meta-row">
-          <span>Mode</span>
-          <span className="rct-mode">{invoice.sale_type === 'wholesale' ? 'Wholesale' : 'Retail'}</span>
+          <span>{t('receipt.mode', 'Mode')}</span>
+          <span className="rct-mode">{invoice.sale_type === 'wholesale' ? t('pos.wholesale', 'Wholesale') : t('pos.retail', 'Retail')}</span>
         </div>
       </div>
 
@@ -92,10 +94,10 @@ const Receipt = forwardRef(function Receipt({ invoice, shopInfo, paperWidth }, r
       <table className="rct-items">
         <thead>
           <tr>
-            <th className="rct-col-name">Item</th>
-            <th className="rct-col-qty">Qty</th>
-            <th className="rct-col-price">Price</th>
-            <th className="rct-col-total">Total</th>
+            <th className="rct-col-name">{t('receipt.item', 'Item')}</th>
+            <th className="rct-col-qty">{t('receipt.qty', 'Qty')}</th>
+            <th className="rct-col-price">{t('receipt.price', 'Price')}</th>
+            <th className="rct-col-total">{t('receipt.total', 'Total')}</th>
           </tr>
         </thead>
         <tbody>
@@ -123,24 +125,24 @@ const Receipt = forwardRef(function Receipt({ invoice, shopInfo, paperWidth }, r
       {/* ── Totals ── */}
       <div className="rct-totals">
         <div className="rct-total-row">
-          <span>Subtotal</span>
+          <span>{t('receipt.subtotal', 'Subtotal')}</span>
           <span>{fmt(invoice.subtotal)}</span>
         </div>
         {Number(invoice.discount) > 0 && (
           <div className="rct-total-row">
-            <span>Discount</span>
+            <span>{t('receipt.discount', 'Discount')}</span>
             <span>- {fmt(invoice.discount)}</span>
           </div>
         )}
         {Number(invoice.tax_amount) > 0 && (
           <div className="rct-total-row">
-            <span>Tax</span>
+            <span>{t('receipt.tax', 'Tax')}</span>
             <span>{fmt(invoice.tax_amount)}</span>
           </div>
         )}
         <div className="rct-divider rct-solid" />
         <div className="rct-total-row rct-grand-total">
-          <span>TOTAL</span>
+          <span>{t('receipt.total', 'TOTAL')}</span>
           <span>Rs. {fmt(invoice.total_amount)}</span>
         </div>
       </div>
@@ -157,13 +159,13 @@ const Receipt = forwardRef(function Receipt({ invoice, shopInfo, paperWidth }, r
         ))}
         {Number(invoice.change_due) > 0 && (
           <div className="rct-total-row">
-            <span>Change</span>
+            <span>{t('receipt.change', 'Change')}</span>
             <span>{fmt(invoice.change_due)}</span>
           </div>
         )}
         {Number(invoice.balance_due) > 0 && (
           <div className="rct-total-row rct-balance-due">
-            <span>Balance Due</span>
+            <span>{t('receipt.balance', 'Balance Due')}</span>
             <span>{fmt(invoice.balance_due)}</span>
           </div>
         )}

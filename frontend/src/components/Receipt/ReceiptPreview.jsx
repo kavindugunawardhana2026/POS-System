@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import Receipt from './Receipt'
 import './Receipt.css'
 
@@ -11,6 +12,7 @@ import './Receipt.css'
  * – paperWidth: '80mm' (default) | '58mm'
  */
 export default function ReceiptPreview({ invoice, shopInfo, onClose, autoPrint = false }) {
+  const { t } = useTranslation()
   const [paperWidth, setPaperWidth] = useState(
     shopInfo?.thermal_printer || '80mm'
   )
@@ -62,7 +64,7 @@ export default function ReceiptPreview({ invoice, shopInfo, onClose, autoPrint =
 
         {/* Header */}
         <div className="receipt-preview-header">
-          <span>🧾 Receipt Preview</span>
+          <span>🧾 {t('receipt.preview', 'Receipt Preview')}</span>
           <div className="receipt-preview-header-actions">
             {/* Paper width toggle */}
             <div className="receipt-preview-size">
@@ -92,9 +94,9 @@ export default function ReceiptPreview({ invoice, shopInfo, onClose, autoPrint =
 
         {/* Footer actions */}
         <div className="receipt-preview-footer">
-          <button className="btn btn-secondary" onClick={onClose}>Close</button>
+          <button className="btn btn-secondary" onClick={onClose}>{t('pos.cancel', 'Close')}</button>
           <button className="btn btn-primary" onClick={handlePrint}>
-            🖨️ Print Receipt
+            🖨️ {t('pos.print', 'Print Receipt')}
           </button>
         </div>
       </div>

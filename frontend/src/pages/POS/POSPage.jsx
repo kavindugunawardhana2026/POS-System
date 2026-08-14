@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext'
 import { listProducts } from '@/services/productService'
 import { createInvoice } from '@/services/invoiceService'
 import { validateCredit } from '@/services/returnService'
+import { useTranslation } from 'react-i18next'
 import ReceiptPreview from '@/components/Receipt/ReceiptPreview'
 import api from '@/services/api'
 import './POSPage.css'
@@ -90,9 +91,9 @@ function WeightDialog({ product, mode, onConfirm, onCancel }) {
           )}
         </div>
         <div className="pos-dialog-footer">
-          <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
+          <button className="btn btn-secondary" onClick={onCancel}>{t('pos.cancel', 'Cancel')}</button>
           <button className="btn btn-primary" onClick={handleConfirm} disabled={!weight || Number(weight) <= 0}>
-            Add to Cart
+            {t('pos.add_to_cart', 'Add to Cart')}
           </button>
         </div>
       </div>
@@ -103,6 +104,7 @@ function WeightDialog({ product, mode, onConfirm, onCancel }) {
 // ─── Hold Orders Panel ───────────────────────────────────────────────────────
 
 function HeldOrdersPanel({ onRestore, onClose }) {
+  const { t } = useTranslation()
   const [held, setHeld] = useState(() => {
     try { return JSON.parse(localStorage.getItem(HOLD_KEY) || '[]') } catch { return [] }
   })
@@ -138,10 +140,10 @@ function HeldOrdersPanel({ onRestore, onClose }) {
               </div>
               <div className="pos-hold-actions">
                 <button className="btn btn-primary btn-sm" onClick={() => { onRestore(order); onClose() }}>
-                  Restore
+                  {t('pos.restore', 'Restore')}
                 </button>
                 <button className="btn btn-danger btn-sm" onClick={() => deleteHeld(order.id)}>
-                  Delete
+                  {t('pos.delete', 'Delete')}
                 </button>
               </div>
             </div>
@@ -155,6 +157,7 @@ function HeldOrdersPanel({ onRestore, onClose }) {
 // ─── Checkout Panel ──────────────────────────────────────────────────────────
 
 function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, onSuccess, onClose }) {
+  const { t } = useTranslation()
   const toast  = useToast()
   const { user } = useAuth()
   const [invoiceDiscount, setInvoiceDiscount] = useState('')
@@ -242,11 +245,11 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, onSuccess, onClos
         <div className="pos-dialog-body">
           <div className="pos-checkout-summary">
             <div className="pos-summary-row">
-              <span>Subtotal</span>
+              <span>{t('pos.subtotal', 'Subtotal')}</span>
               <span>Rs. {fmt(grandTotal)}</span>
             </div>
             <div className="pos-summary-row">
-              <label>Invoice Discount</label>
+              <label>{t('pos.discount', 'Discount')}</label>
               <input
                 className="pos-co-input"
                 type="number" min="0" step="0.01"
@@ -280,12 +283,12 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, onSuccess, onClos
             </div>
             {creditNote && (
               <div className="pos-summary-row" style={{ color: 'var(--success)', fontStyle: 'italic', fontSize: '0.85rem' }}>
-                <span>Credit Applied</span>
+                <span>{t('pos.credit_applied', 'Credit Applied')}</span>
                 <span>- Rs. {fmt(creditAmt)}</span>
               </div>
             )}
             <div className="pos-summary-row pos-summary-total">
-              <span>Total</span>
+              <span>{t('pos.total', 'Total')}</span>
               <span>Rs. {fmt(finalTotal)}</span>
             </div>
           </div>
@@ -304,7 +307,7 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, onSuccess, onClos
 
           {paymentMethod === 'cash' && (
             <>
-              <label className="pos-co-label">Amount Received</label>
+              <label className="pos-co-label">{t('pos.amount_paid', 'Amount Paid')}</label>
               <input
                 className="pos-weight-input"
                 type="number" min="0" step="0.01"
@@ -316,7 +319,7 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, onSuccess, onClos
               />
               <div className="pos-change-row">
                 <div className={`pos-change-box ${change > 0 ? 'pos-change-green' : ''}`}>
-                  <div className="pos-change-label">Change</div>
+                  <div className="pos-change-label">{t('pos.change', 'Change')}</div>
                   <div className="pos-change-val">Rs. {fmt(change)}</div>
                 </div>
                 {balance > 0 && (
@@ -330,13 +333,13 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, onSuccess, onClos
           )}
         </div>
         <div className="pos-dialog-footer">
-          <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+          <button className="btn btn-secondary" onClick={onClose}>{t('pos.cancel', 'Cancel')}</button>
           <button
             className="btn btn-success pos-charge-btn"
             onClick={handleCharge}
             disabled={saving || (!canCharge && paymentMethod === 'cash')}
           >
-            {saving ? 'Processing...' : `Charge Rs. ${fmt(finalTotal)}`}
+            {saving ? 'Processing...' : `${t('pos.pay', 'Pay')} Rs. ${fmt(finalTotal)}`}
           </button>
         </div>
       </div>
@@ -357,6 +360,7 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, onSuccess, onClos
 // ─── Main POS Page ───────────────────────────────────────────────────────────
 
 export default function POSPage() {
+  const { t } = useTranslation()
   const toast = useToast()
 
   // Cart state
@@ -474,19 +478,19 @@ export default function POSPage() {
 
   // ── Hold & restore ───────────────────────────────────────────
   const holdOrder = () => {
-    if (cart.length === 0) { toast.warning('Cart is empty'); return }
+    if (cart.length === 0) { toast.warning(t('pos.empty_cart', 'Cart is empty')); return }
     const held = JSON.parse(localStorage.getItem(HOLD_KEY) || '[]')
     const order = {
       id:      `hold-${Date.now()}`,
-      savedAt: new Date().toISOString(),
-      mode:    saleMode,
       items:   cart,
+      mode:    saleMode,
       total:   grandTotal,
+      savedAt: new Date().toISOString()
     }
     localStorage.setItem(HOLD_KEY, JSON.stringify([...held, order]))
     setCart([])
     setSaleMode('retail')
-    toast.success('Order held. Screen cleared for next customer.')
+    toast.success(t('pos.order_held', 'Order held. Screen cleared for next customer.'))
   }
 
   const restoreOrder = (order) => {
@@ -521,7 +525,7 @@ export default function POSPage() {
             <input
               ref={searchRef}
               className="pos-search-input"
-              placeholder="Search product by name or barcode…"
+              placeholder={t('pos.search_product', 'Search product by name or barcode...')}
               value={search}
               onChange={e => setSearch(e.target.value)}
               autoComplete="off"
@@ -569,23 +573,23 @@ export default function POSPage() {
             <button
               className={`pos-mode-btn ${saleMode === 'retail' ? 'active' : ''}`}
               onClick={() => setSaleMode('retail')}
-            >Retail</button>
+            >{t('pos.retail', 'Retail')}</button>
             <button
               className={`pos-mode-btn ${saleMode === 'wholesale' ? 'active' : ''}`}
               onClick={() => setSaleMode('wholesale')}
-            >Wholesale</button>
+            >{t('pos.wholesale', 'Wholesale')}</button>
           </div>
 
           <div className="pos-actions">
             <button className="pos-action-btn" onClick={() => setShowHeld(true)}>
-              📋 Held {heldCount > 0 && <span className="pos-held-badge">{heldCount}</span>}
+              📋 {t('pos.held_orders', 'Held')} {heldCount > 0 && <span className="pos-held-badge">{heldCount}</span>}
             </button>
             <button className="pos-action-btn pos-hold-btn" onClick={holdOrder} disabled={cart.length === 0}>
-              ⏸ Hold
+              ⏸ {t('pos.hold_order', 'Hold')}
             </button>
             {cart.length > 0 && (
               <button className="pos-action-btn pos-clear-btn" onClick={clearCart}>
-                🗑 Clear
+                🗑 {t('pos.clear', 'Clear')}
               </button>
             )}
           </div>
@@ -596,18 +600,18 @@ export default function POSPage() {
           {cart.length === 0 ? (
             <div className="pos-cart-empty">
               <div className="pos-cart-empty-icon">🛒</div>
-              <p>Cart is empty</p>
-              <p className="pos-cart-empty-sub">Search for a product above to get started</p>
+              <p>{t('pos.empty_cart', 'Cart is empty')}</p>
+              <p className="pos-cart-empty-sub">{t('pos.search_to_start', 'Search for a product above to get started')}</p>
             </div>
           ) : (
             <table className="pos-cart-table">
               <thead>
                 <tr>
-                  <th>Item</th>
-                  <th>Unit Price</th>
-                  <th>Qty</th>
-                  <th>Discount</th>
-                  <th className="text-right">Subtotal</th>
+                  <th>{t('pos.item', 'Item')}</th>
+                  <th>{t('pos.price', 'Price')}</th>
+                  <th>{t('pos.qty', 'Qty')}</th>
+                  <th>{t('pos.discount', 'Discount')}</th>
+                  <th className="text-right">{t('pos.subtotal', 'Subtotal')}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -663,28 +667,28 @@ export default function POSPage() {
       <div className="pos-right">
         <div className="pos-summary-card">
           <div className="pos-summary-title">
-            Order Summary
+            {t('pos.order_summary', 'Order Summary')}
             <span className={`pos-mode-badge ${saleMode}`}>
-              {saleMode === 'retail' ? 'Retail' : 'Wholesale'}
+              {saleMode === 'retail' ? t('pos.retail', 'Retail') : t('pos.wholesale', 'Wholesale')}
             </span>
           </div>
 
           <div className="pos-summary-rows">
             <div className="pos-sum-row">
-              <span>Items</span>
+              <span>{t('pos.items', 'Items')}</span>
               <span>{itemCount}</span>
             </div>
             <div className="pos-sum-row">
-              <span>Lines</span>
+              <span>{t('pos.lines', 'Lines')}</span>
               <span>{cart.length}</span>
             </div>
             <div className="pos-sum-row">
-              <span>Item Discounts</span>
+              <span>{t('pos.item_discounts', 'Item Discounts')}</span>
               <span>− Rs. {fmt(cart.reduce((s, it) => s + it.discount, 0))}</span>
             </div>
             <div className="pos-sum-divider" />
             <div className="pos-sum-row pos-sum-total">
-              <span>Grand Total</span>
+              <span>{t('pos.total', 'Grand Total')}</span>
               <span>Rs. {fmt(grandTotal)}</span>
             </div>
           </div>
@@ -694,15 +698,15 @@ export default function POSPage() {
             onClick={() => setShowCheckout(true)}
             disabled={cart.length === 0}
           >
-            Charge  Rs. {fmt(grandTotal)}
+            {t('pos.charge', 'Charge')}  Rs. {fmt(grandTotal)}
           </button>
 
           <div className="pos-quick-actions">
             <button className="pos-qa-btn" onClick={holdOrder} disabled={cart.length === 0}>
-              ⏸ Hold Order
+              ⏸ {t('pos.hold_order', 'Hold Order')}
             </button>
             <button className="pos-qa-btn" onClick={() => setShowHeld(true)}>
-              📋 View Held
+              📋 {t('pos.view_held', 'View Held')}
             </button>
           </div>
         </div>
