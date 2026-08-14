@@ -74,6 +74,22 @@
     "created_at": "Created At",
     "updated_at": "Updated At"
   },
+  "dashboard": {
+    "loading": "Loading Dashboard...",
+    "title": "Dashboard Overview",
+    "subtitle": "Real-time updates on your store's performance today",
+    "today_sales": "Today's Sales",
+    "orders_today": "Orders Today",
+    "returns_today": "Returns Today",
+    "total_customers": "Total Customers",
+    "revenue_7_days": "Revenue (Last 7 Days)",
+    "sales": "Sales",
+    "low_stock": "Low Stock Alerts",
+    "stock_healthy": "Stock levels are healthy!",
+    "left": "left",
+    "recent_sales": "Recent Sales",
+    "no_tx": "No transactions yet"
+  },
   "products": {
     "title": "Products",
     "subtitle": "Manage your catalogue and inventory",

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getMetrics, getSalesTrend, getLowStock, getRecentTransactions } from '@/services/dashboardService'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar
@@ -7,6 +8,7 @@ import { TrendingUp, ShoppingCart, RotateCcw, Users, AlertTriangle, Clock } from
 import './DashboardPage.css'
 
 export default function DashboardPage() {
+  const { t } = useTranslation()
   const [metrics, setMetrics] = useState({ todaySales: 0, todayOrders: 0, todayReturns: 0, totalCustomers: 0 })
   const [salesTrend, setSalesTrend] = useState([])
   const [lowStock, setLowStock] = useState([])
@@ -41,7 +43,7 @@ export default function DashboardPage() {
     return (
       <div className="dash-loading">
         <div className="spinner"></div>
-        <p>Loading Dashboard...</p>
+        <p>{t('dashboard.loading', 'Loading Dashboard...')}</p>
       </div>
     )
   }
@@ -49,8 +51,8 @@ export default function DashboardPage() {
   return (
     <div className="dashboard-root">
       <div className="dash-header">
-        <h1>Dashboard Overview</h1>
-        <p>Real-time updates on your store's performance today</p>
+        <h1>{t('dashboard.title', 'Dashboard Overview')}</h1>
+        <p>{t('dashboard.subtitle', "Real-time updates on your store's performance today")}</p>
       </div>
 
       {/* ── Key Metrics Grid ── */}
@@ -58,28 +60,28 @@ export default function DashboardPage() {
         <div className="dash-metric-card">
           <div className="dmc-icon bg-blue"><TrendingUp size={24} /></div>
           <div className="dmc-info">
-            <span className="dmc-label">Today's Sales</span>
+            <span className="dmc-label">{t('dashboard.today_sales', "Today's Sales")}</span>
             <span className="dmc-val">Rs. {fmt(metrics.todaySales)}</span>
           </div>
         </div>
         <div className="dash-metric-card">
           <div className="dmc-icon bg-green"><ShoppingCart size={24} /></div>
           <div className="dmc-info">
-            <span className="dmc-label">Orders Today</span>
+            <span className="dmc-label">{t('dashboard.orders_today', 'Orders Today')}</span>
             <span className="dmc-val">{metrics.todayOrders}</span>
           </div>
         </div>
         <div className="dash-metric-card">
           <div className="dmc-icon bg-orange"><RotateCcw size={24} /></div>
           <div className="dmc-info">
-            <span className="dmc-label">Returns Today</span>
+            <span className="dmc-label">{t('dashboard.returns_today', 'Returns Today')}</span>
             <span className="dmc-val">{metrics.todayReturns}</span>
           </div>
         </div>
         <div className="dash-metric-card">
           <div className="dmc-icon bg-purple"><Users size={24} /></div>
           <div className="dmc-info">
-            <span className="dmc-label">Total Customers</span>
+            <span className="dmc-label">{t('dashboard.total_customers', 'Total Customers')}</span>
             <span className="dmc-val">{metrics.totalCustomers}</span>
           </div>
         </div>
@@ -89,7 +91,7 @@ export default function DashboardPage() {
         {/* ── Sales Trend Chart ── */}
         <div className="dash-card dash-chart-card">
           <div className="dash-card-header">
-            <h3>Revenue (Last 7 Days)</h3>
+            <h3>{t('dashboard.revenue_7_days', 'Revenue (Last 7 Days)')}</h3>
           </div>
           <div className="dash-chart-container">
             <ResponsiveContainer width="100%" height="100%">
@@ -115,7 +117,7 @@ export default function DashboardPage() {
                 <Tooltip 
                   cursor={{ fill: 'var(--hover-bg)' }}
                   contentStyle={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', borderRadius: 8 }}
-                  formatter={(val) => [`Rs. ${fmt(val)}`, 'Sales']}
+                  formatter={(val) => [`Rs. ${fmt(val)}`, t('dashboard.sales', 'Sales')]}
                 />
                 <Bar dataKey="sales" fill="var(--accent)" radius={[4, 4, 0, 0]} barSize={40} />
               </BarChart>
@@ -131,12 +133,12 @@ export default function DashboardPage() {
             <div className="dash-card-header">
               <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <AlertTriangle size={18} color="var(--warning)" />
-                Low Stock Alerts
+                {t('dashboard.low_stock', 'Low Stock Alerts')}
               </h3>
             </div>
             <div className="dash-widget-body">
               {lowStock.length === 0 ? (
-                <div className="dash-empty">Stock levels are healthy!</div>
+                <div className="dash-empty">{t('dashboard.stock_healthy', 'Stock levels are healthy!')}</div>
               ) : (
                 <ul className="dash-list">
                   {lowStock.map(item => (
@@ -147,7 +149,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="dli-status">
                         <span className="badge badge-warning">
-                          {Number(item.stock_quantity).toFixed(0)} left
+                          {Number(item.stock_quantity).toFixed(0)} {t('dashboard.left', 'left')}
                         </span>
                       </div>
                     </li>
@@ -162,12 +164,12 @@ export default function DashboardPage() {
             <div className="dash-card-header">
               <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Clock size={18} color="var(--text-secondary)" />
-                Recent Sales
+                {t('dashboard.recent_sales', 'Recent Sales')}
               </h3>
             </div>
             <div className="dash-widget-body">
               {recentTx.length === 0 ? (
-                <div className="dash-empty">No transactions yet</div>
+                <div className="dash-empty">{t('dashboard.no_tx', 'No transactions yet')}</div>
               ) : (
                 <ul className="dash-list">
                   {recentTx.map(tx => (
