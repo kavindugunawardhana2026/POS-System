@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useToast } from '@/context/ToastContext'
 import { useAuth } from '@/context/AuthContext'
@@ -199,8 +199,8 @@ export default function ProductsPage() {
     <div className="products-page">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Products</h1>
-          <p className="page-sub">{meta.total} product(s) in your catalogue</p>
+          <h1 className="page-title">{t('products.title', 'Products')}</h1>
+          <p className="page-sub">{meta.total} {t('products.subtitle_count', 'product(s) in your catalogue')}</p>
         </div>
         <div className="page-actions">
           {canManage && (
@@ -209,10 +209,10 @@ export default function ProductsPage() {
                 className="btn btn-secondary"
                 onClick={() => setBulkOpen(true)}
               >
-                📥 Bulk Upload
+                📥 {t('products.bulk_upload', 'Bulk Upload')}
               </button>
               <button className="btn btn-primary" onClick={openCreate}>
-                ➕ Add Product
+                ➕ {t('products.add_product', 'Add Product')}
               </button>
             </>
           )}
@@ -225,7 +225,7 @@ export default function ProductsPage() {
           <input
             className="input"
             type="text"
-            placeholder="Search by name, SKU, or barcode..."
+            placeholder={t('products.search_placeholder', 'Search by name, SKU, or barcode...')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -234,7 +234,7 @@ export default function ProductsPage() {
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
           >
-            <option value="">All categories</option>
+            <option value="">{t('products.all_categories', 'All categories')}</option>
             {categories.map((c) => (
               <option key={c.category_id} value={c.category_id}>{c.name}</option>
             ))}
@@ -249,10 +249,10 @@ export default function ProductsPage() {
         ) : items.length === 0 ? (
           <div className="table-empty">
             <div className="empty-icon">📦</div>
-            <p>No products found</p>
+            <p>{t('products.no_products_found', 'No products found')}</p>
             {canManage && (
               <button className="btn btn-primary" onClick={openCreate}>
-                Add your first product
+                {t('products.add_first_product', 'Add your first product')}
               </button>
             )}
           </div>
@@ -262,17 +262,17 @@ export default function ProductsPage() {
               <table className="table">
                 <thead>
                   <tr>
-                    <th>SKU</th>
-                    <th>Barcode</th>
-                    <th>Name</th>
-                    <th>Category</th>
-                    <th className="num">Cost</th>
-                    <th className="num">Retail</th>
-                    <th className="num">Wholesale</th>
-                    <th>Unit</th>
-                    <th className="num">Stock</th>
-                    <th>Status</th>
-                    {canManage && <th style={{ textAlign: 'right' }}>Actions</th>}
+                    <th>{t('products.sku', 'SKU')}</th>
+                    <th>{t('products.barcode', 'Barcode')}</th>
+                    <th>{t('products.name', 'Name')}</th>
+                    <th>{t('products.category', 'Category')}</th>
+                    <th className="num">{t('products.cost', 'Cost')}</th>
+                    <th className="num">{t('products.retail', 'Retail')}</th>
+                    <th className="num">{t('products.wholesale', 'Wholesale')}</th>
+                    <th>{t('products.unit', 'Unit')}</th>
+                    <th className="num">{t('products.stock', 'Stock')}</th>
+                    <th>{t('products.status', 'Status')}</th>
+                    {canManage && <th style={{ textAlign: 'right' }}>{t('common.actions', 'Actions')}</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -301,7 +301,7 @@ export default function ProductsPage() {
                       </td>
                       <td>
                         <span className={`badge ${p.is_active ? 'badge-success' : 'badge-danger'}`}>
-                          {p.is_active ? 'Active' : 'Inactive'}
+                          {p.is_active ? t('products.active', 'Active') : t('products.inactive', 'Inactive')}
                         </span>
                       </td>
                       {canManage && (
@@ -310,7 +310,7 @@ export default function ProductsPage() {
                             className="btn btn-secondary btn-sm"
                             onClick={() => openEdit(p)}
                           >
-                            ✏️ Edit
+                            ✏️ {t('common.edit', 'Edit')}
                           </button>
                           <button
                             className="btn btn-danger btn-sm"
@@ -335,17 +335,17 @@ export default function ProductsPage() {
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                 >
-                  ← Prev
+                  ← {t('common.prev', 'Prev')}
                 </button>
                 <span className="pagination-info">
-                  Page {meta.page} of {meta.pages}
+                  {t('common.page_of', 'Page {{page}} of {{pages}}', { page: meta.page, pages: meta.pages })}
                 </span>
                 <button
                   className="btn btn-secondary btn-sm"
                   disabled={page >= meta.pages}
                   onClick={() => setPage((p) => Math.min(meta.pages, p + 1))}
                 >
-                  Next →
+                  {t('common.next', 'Next')} →
                 </button>
               </div>
             )}
@@ -358,29 +358,29 @@ export default function ProductsPage() {
         <div className="modal-backdrop" onClick={closeModal}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>{editing?.product_id ? 'Edit Product' : 'Add Product'}</h2>
+              <h2>{editing?.product_id ? t('products.edit_product', 'Edit Product') : t('products.add_product', 'Add Product')}</h2>
               <button className="modal-close" onClick={closeModal}>✕</button>
             </div>
             <form onSubmit={submitForm} className="modal-body">
               <div className="form-grid">
                 <div className="form-group span-2">
-                  <label>Name *</label>
+                  <label>{t('products.name', 'Name')} *</label>
                   <input className="input" value={form.name} onChange={onFormChange('name')} required />
                 </div>
 
                 <div className="form-group">
-                  <label>Barcode</label>
+                  <label>{t('products.barcode', 'Barcode')}</label>
                   <input className="input" value={form.barcode} onChange={onFormChange('barcode')} />
                 </div>
 
                 <div className="form-group">
-                  <label>Category</label>
+                  <label>{t('products.category', 'Category')}</label>
                   <select
                     className="input"
                     value={form.category_id}
                     onChange={onFormChange('category_id')}
                   >
-                    <option value="">— None —</option>
+                    <option value="">— {t('products.none', 'None')} —</option>
                     {categories.map((c) => (
                       <option key={c.category_id} value={c.category_id}>{c.name}</option>
                     ))}
@@ -388,12 +388,12 @@ export default function ProductsPage() {
                 </div>
 
                 <div className="form-group">
-                  <label>Brand</label>
+                  <label>{t('products.brand', 'Brand')}</label>
                   <input className="input" value={form.brand} onChange={onFormChange('brand')} />
                 </div>
 
                 <div className="form-group">
-                  <label>Measurement Unit *</label>
+                  <label>{t('products.measurement_unit', 'Measurement Unit')} *</label>
                   <select
                     className="input"
                     value={form.measurement_unit}
@@ -406,45 +406,45 @@ export default function ProductsPage() {
                 </div>
 
                 <div className="form-group">
-                  <label>Cost Price</label>
+                  <label>{t('products.cost_price', 'Cost Price')}</label>
                   <input className="input" type="number" step="0.01" min="0"
                     value={form.cost_price} onChange={onFormChange('cost_price')} />
                 </div>
 
                 <div className="form-group">
-                  <label>Retail Price *</label>
+                  <label>{t('products.retail_price', 'Retail Price')} *</label>
                   <input className="input" type="number" step="0.01" min="0"
                     value={form.retail_price} onChange={onFormChange('retail_price')} required />
                 </div>
 
                 <div className="form-group">
-                  <label>Wholesale Price</label>
+                  <label>{t('products.wholesale_price', 'Wholesale Price')}</label>
                   <input className="input" type="number" step="0.01" min="0"
                     value={form.wholesale_price} onChange={onFormChange('wholesale_price')} />
                 </div>
 
                 <div className="form-group">
-                  <label>Min Wholesale Qty</label>
+                  <label>{t('products.min_wholesale_qty', 'Min Wholesale Qty')}</label>
                   <input className="input" type="number" step="0.001" min="0"
                     value={form.min_wholesale_quantity}
                     onChange={onFormChange('min_wholesale_quantity')} />
                 </div>
 
                 <div className="form-group">
-                  <label>Stock Quantity</label>
+                  <label>{t('products.stock_quantity', 'Stock Quantity')}</label>
                   <input className="input" type="number" step="0.001" min="0"
                     value={form.stock_quantity} onChange={onFormChange('stock_quantity')} />
                 </div>
 
                 <div className="form-group">
-                  <label>Low-Stock Threshold</label>
+                  <label>{t('products.low_stock_threshold', 'Low-Stock Threshold')}</label>
                   <input className="input" type="number" step="0.001" min="0"
                     value={form.low_stock_threshold}
                     onChange={onFormChange('low_stock_threshold')} />
                 </div>
 
                 <div className="form-group span-2">
-                  <label>Description</label>
+                  <label>{t('products.description', 'Description')}</label>
                   <textarea className="input" rows="2"
                     value={form.description} onChange={onFormChange('description')} />
                 </div>
@@ -453,17 +453,17 @@ export default function ProductsPage() {
                   <label>
                     <input type="checkbox" checked={form.is_active}
                       onChange={onFormChange('is_active')} />
-                    <span> Active (visible to POS)</span>
+                    <span> {t('products.active_visible', 'Active (visible to POS)')}</span>
                   </label>
                 </div>
               </div>
 
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={closeModal}>
-                  Cancel
+                  {t('common.cancel', 'Cancel')}
                 </button>
                 <button type="submit" className="btn btn-primary" disabled={saving}>
-                  {saving ? 'Saving...' : (editing?.product_id ? 'Update' : 'Create')}
+                  {saving ? t('common.saving', 'Saving...') : (editing?.product_id ? t('common.update', 'Update') : t('common.create', 'Create'))}
                 </button>
               </div>
             </form>
@@ -476,18 +476,18 @@ export default function ProductsPage() {
         <div className="modal-backdrop" onClick={() => setConfirmDelete(null)}>
           <div className="modal modal-sm" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Delete Product</h2>
+              <h2>{t('products.delete_product', 'Delete Product')}</h2>
               <button className="modal-close" onClick={() => setConfirmDelete(null)}>✕</button>
             </div>
             <div className="modal-body">
-              <p>Are you sure you want to delete <strong>{confirmDelete.name}</strong>?</p>
-              <p className="text-secondary">This action can be reversed by an administrator.</p>
+              <p>{t('products.delete_confirm', 'Are you sure you want to delete {{name}}?', { name: confirmDelete.name })}</p>
+              <p className="text-secondary">{t('products.delete_warning', 'This action can be reversed by an administrator.')}</p>
               <div className="modal-footer">
                 <button className="btn btn-secondary" onClick={() => setConfirmDelete(null)}>
-                  Cancel
+                  {t('common.cancel', 'Cancel')}
                 </button>
                 <button className="btn btn-danger" onClick={handleDelete}>
-                  Delete
+                  {t('common.delete', 'Delete')}
                 </button>
               </div>
             </div>

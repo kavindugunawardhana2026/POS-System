@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useToast } from '@/context/ToastContext'
 import { bulkUploadProducts, downloadTemplate } from '@/services/productService'
 import './ProductsPage.css'
@@ -7,6 +8,7 @@ const ACCEPTED = '.xlsx,.xls,.csv'
 const MAX_BYTES = 5 * 1024 * 1024 // 5 MB (matches backend)
 
 export default function BulkUploadModal({ onClose, onComplete }) {
+  const { t } = useTranslation()
   const toast = useToast()
   const inputRef = useRef(null)
 
@@ -49,15 +51,15 @@ export default function BulkUploadModal({ onClose, onComplete }) {
       const payload = res.data?.data || { inserted: [], failed: 0, errors: [] }
       setResult(payload)
       if (res.data?.success) {
-        toast.success(res.data.message || 'Products imported successfully')
+        toast.success(res.data.message || t('products.import_success', 'Products imported successfully'))
         // Close after a brief delay so the user sees the success message.
         setTimeout(() => onComplete?.(), 800)
       } else {
-        toast.warning(res.data?.message || 'Import completed with errors')
+        toast.warning(res.data?.message || t('products.import_errors', 'Import completed with errors'))
       }
     } catch (err) {
       const data = err?.response?.data
-      toast.error(data?.message || 'Upload failed')
+      toast.error(data?.message || t('products.upload_failed', 'Upload failed'))
     } finally {
       setBusy(false)
       setProgress(100)
@@ -75,14 +77,13 @@ export default function BulkUploadModal({ onClose, onComplete }) {
     <div className="modal-backdrop" onClick={busy ? undefined : onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>📥 Bulk Upload Products</h2>
+          <h2>📥 {t('products.bulk_upload_title', 'Bulk Upload Products')}</h2>
           <button className="modal-close" disabled={busy} onClick={onClose}>✕</button>
         </div>
 
         <div className="modal-body">
           <p className="text-secondary" style={{ marginBottom: 12 }}>
-            Upload an Excel (.xlsx / .xls) or CSV file. Each row creates one product.
-            SKU is generated automatically if left blank.
+            {t('products.bulk_upload_desc', 'Upload an Excel (.xlsx / .xls) or CSV file. Each row creates one product. SKU is generated automatically if left blank.')}
           </p>
 
           {!file && (
@@ -94,8 +95,8 @@ export default function BulkUploadModal({ onClose, onComplete }) {
               onDrop={onDrop}
             >
               <div className="upload-icon">📂</div>
-              <div className="upload-title">Drop a file here or click to browse</div>
-              <div className="upload-hint">.xlsx, .xls, or .csv — up to 5 MB</div>
+              <div className="upload-title">{t('products.drop_file_here', 'Drop a file here or click to browse')}</div>
+              <div className="upload-hint">{t('products.file_hint', '.xlsx, .xls, or .csv — up to 5 MB')}</div>
               <input
                 ref={inputRef}
                 type="file"
@@ -115,7 +116,7 @@ export default function BulkUploadModal({ onClose, onComplete }) {
                   </span>
                   {!busy && (
                     <button className="btn btn-secondary btn-sm" onClick={reset}>
-                      Choose different file
+                      {t('products.choose_different', 'Choose different file')}
                     </button>
                   )}
                 </div>
@@ -127,7 +128,7 @@ export default function BulkUploadModal({ onClose, onComplete }) {
                     <div className="bulk-progress-bar" style={{ width: `${progress}%` }} />
                   </div>
                   <div className="text-secondary" style={{ textAlign: 'center' }}>
-                    Uploading... {progress}%
+                    {t('products.uploading', 'Uploading...')} {progress}%
                   </div>
                 </>
               )}
@@ -136,18 +137,18 @@ export default function BulkUploadModal({ onClose, onComplete }) {
                 <>
                   {result.inserted?.length > 0 && (
                     <div className="bulk-success">
-                      ✅ Imported {result.inserted.length} product(s)
+                      ✅ {t('products.imported_count', 'Imported {{count}} product(s)', { count: result.inserted.length })}
                     </div>
                   )}
                   {result.errors?.length > 0 && (
                     <div className="bulk-errors">
-                      <h4>⚠ {result.errors.length} row(s) failed:</h4>
+                      <h4>⚠ {t('products.failed_rows', '{{count}} row(s) failed:', { count: result.errors.length })}</h4>
                       <ul>
                         {result.errors.slice(0, 50).map((e, i) => (
-                          <li key={i}>Row {e.row}: {e.message}</li>
+                          <li key={i}>{t('products.row', 'Row')} {e.row}: {e.message}</li>
                         ))}
                         {result.errors.length > 50 && (
-                          <li>... and {result.errors.length - 50} more</li>
+                          <li>{t('products.and_more', '... and {{count}} more', { count: result.errors.length - 50 })}</li>
                         )}
                       </ul>
                     </div>
@@ -165,31 +166,26 @@ export default function BulkUploadModal({ onClose, onComplete }) {
             borderRadius: 'var(--radius-sm)',
             fontSize: '0.8rem',
           }}>
-            <strong>Expected columns:</strong>
+            <strong>{t('products.expected_columns', 'Expected columns:')}</strong>
             <div style={{ marginTop: 6, color: 'var(--text-secondary)' }}>
-              SKU, Barcode, <span style={{ color: 'var(--danger)' }}>Name</span>,
-              Category (slug or name), Brand, Description,
-              Cost Price, <span style={{ color: 'var(--danger)' }}>Retail Price</span>,
-              Wholesale Price, Min Wholesale Quantity,
-              Measurement Unit (Units / Kg / Grams / Liters / ml / Pack),
-              Stock Quantity, Low Stock Threshold
+              {t('products.columns_hint', 'SKU, Barcode, Name, Category (slug or name), Brand, Description, Cost Price, Retail Price, Wholesale Price, Min Wholesale Quantity, Measurement Unit (Units / Kg / Grams / Liters / ml / Pack), Stock Quantity, Low Stock Threshold')}
             </div>
           </div>
         </div>
 
         <div className="modal-footer">
           <button className="btn btn-secondary" onClick={() => downloadTemplate()}>
-            ⬇ Download Template
+            ⬇ {t('products.download_template', 'Download Template')}
           </button>
           <button className="btn btn-secondary" onClick={onClose} disabled={busy}>
-            Close
+            {t('common.close', 'Close')}
           </button>
           <button
             className="btn btn-primary"
             onClick={upload}
             disabled={!file || busy}
           >
-            {busy ? 'Uploading...' : 'Upload & Import'}
+            {busy ? t('products.uploading', 'Uploading...') : t('products.upload_and_import', 'Upload & Import')}
           </button>
         </div>
       </div>

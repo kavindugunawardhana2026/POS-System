@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useToast } from '@/context/ToastContext'
 import { getInvoice } from '@/services/invoiceService'
 import { createReturn } from '@/services/returnService'
@@ -25,6 +26,7 @@ const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100
 const fmt    = (n) => Number(n || 0).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 export default function ReturnsPage() {
+  const { t } = useTranslation()
   const toast = useToast()
 
   // Step 1 — lookup
@@ -186,8 +188,8 @@ export default function ReturnsPage() {
     <div className="returns-root">
       <div className="returns-header">
         <div>
-          <h1 className="returns-title">Return Orders</h1>
-          <p className="returns-sub">Process customer returns and generate credit notes</p>
+          <h1 className="returns-title">{t('returns.title', 'Return Orders')}</h1>
+          <p className="returns-sub">{t('returns.subtitle', 'Process customer returns and generate credit notes')}</p>
         </div>
       </div>
 
@@ -198,13 +200,13 @@ export default function ReturnsPage() {
           <div className="returns-card">
             <div className="returns-card-title">
               <span className="returns-step-badge">1</span>
-              Find Original Invoice
+              {t('returns.step_1', 'Find Original Invoice')}
             </div>
             <div className="returns-lookup-row">
               <input
                 ref={inputRef}
                 className="returns-input"
-                placeholder="Enter Invoice # (e.g. INV-20260814-0001) or ID…"
+                placeholder={t('returns.search_placeholder', 'Enter Invoice # (e.g. INV-20260814-0001) or ID…')}
                 value={invoiceInput}
                 onChange={e => setInvoiceInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleLookup()}
@@ -215,21 +217,21 @@ export default function ReturnsPage() {
                 onClick={handleLookup}
                 disabled={lookupLoading || !invoiceInput.trim()}
               >
-                {lookupLoading ? 'Searching…' : 'Find Invoice'}
+                {lookupLoading ? t('common.searching', 'Searching…') : t('returns.find_invoice', 'Find Invoice')}
               </button>
             </div>
 
             {invoice && (
               <div className="returns-invoice-meta">
-                <div className="rim-row"><span>Invoice</span><strong>{invoice.invoice_number}</strong></div>
-                <div className="rim-row"><span>Date</span><strong>{new Date(invoice.created_at).toLocaleString()}</strong></div>
-                <div className="rim-row"><span>Cashier</span><strong>{invoice.cashier || '—'}</strong></div>
-                <div className="rim-row"><span>Customer</span><strong>{invoice.customer_name || 'Walk-in'}</strong></div>
+                <div className="rim-row"><span>{t('invoices.invoice', 'Invoice')}</span><strong>{invoice.invoice_number}</strong></div>
+                <div className="rim-row"><span>{t('common.date', 'Date')}</span><strong>{new Date(invoice.created_at).toLocaleString()}</strong></div>
+                <div className="rim-row"><span>{t('pos.cashier', 'Cashier')}</span><strong>{invoice.cashier || '—'}</strong></div>
+                <div className="rim-row"><span>{t('pos.customer', 'Customer')}</span><strong>{invoice.customer_name || t('pos.walk_in', 'Walk-in')}</strong></div>
                 <div className="rim-row">
-                  <span>Status</span>
+                  <span>{t('common.status', 'Status')}</span>
                   <span className={`returns-status-badge status-${invoice.status}`}>{invoice.status}</span>
                 </div>
-                <div className="rim-row"><span>Total</span><strong>Rs. {fmt(invoice.total_amount)}</strong></div>
+                <div className="rim-row"><span>{t('pos.total', 'Total')}</span><strong>Rs. {fmt(invoice.total_amount)}</strong></div>
               </div>
             )}
           </div>
@@ -239,18 +241,18 @@ export default function ReturnsPage() {
             <div className="returns-card">
               <div className="returns-card-title">
                 <span className="returns-step-badge">2</span>
-                Select Items to Return
+                {t('returns.step_2', 'Select Items to Return')}
               </div>
               <div className="returns-items-table-wrap">
                 <table className="returns-items-table">
                   <thead>
                     <tr>
                       <th></th>
-                      <th>Product</th>
-                      <th>Orig. Qty</th>
-                      <th>Return Qty</th>
-                      <th>Unit Price</th>
-                      <th>Refund Amount</th>
+                      <th>{t('products.name', 'Product')}</th>
+                      <th>{t('returns.orig_qty', 'Orig. Qty')}</th>
+                      <th>{t('returns.return_qty', 'Return Qty')}</th>
+                      <th>{t('returns.unit_price', 'Unit Price')}</th>
+                      <th>{t('returns.refund_amount', 'Refund Amount')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -318,20 +320,20 @@ export default function ReturnsPage() {
               {/* Return reason & method */}
               <div className="returns-meta-grid">
                 <div className="returns-field">
-                  <label className="returns-label">Return Reason *</label>
+                  <label className="returns-label">{t('returns.return_reason', 'Return Reason')} *</label>
                   <select
                     className="returns-select"
                     value={reason}
                     onChange={e => setReason(e.target.value)}
                   >
-                    <option value="">— Select reason —</option>
+                    <option value="">— {t('returns.select_reason', 'Select reason')} —</option>
                     {RETURN_REASONS.map(r => (
                       <option key={r.value} value={r.value}>{r.label}</option>
                     ))}
                   </select>
                 </div>
                 <div className="returns-field">
-                  <label className="returns-label">Refund Method *</label>
+                  <label className="returns-label">{t('returns.refund_method', 'Refund Method')} *</label>
                   <div className="returns-method-group">
                     {REFUND_METHODS.map(m => (
                       <button
@@ -345,11 +347,11 @@ export default function ReturnsPage() {
                   </div>
                 </div>
                 <div className="returns-field returns-field-full">
-                  <label className="returns-label">Notes (optional)</label>
+                  <label className="returns-label">{t('returns.notes', 'Notes (optional)')}</label>
                   <textarea
                     className="returns-textarea"
                     rows={2}
-                    placeholder="Additional notes…"
+                    placeholder={t('returns.notes_placeholder', 'Additional notes…')}
                     value={notes}
                     onChange={e => setNotes(e.target.value)}
                   />
@@ -360,10 +362,10 @@ export default function ReturnsPage() {
               {selectedItems.length > 0 && (
                 <div className="returns-summary-bar">
                   <div className="rsb-info">
-                    <span>{selectedItems.length} item(s) selected</span>
-                    <span className="rsb-total">Total Refund: <strong>Rs. {fmt(totalRefund)}</strong></span>
+                    <span>{t('returns.items_selected', '{{count}} item(s) selected', { count: selectedItems.length })}</span>
+                    <span className="rsb-total">{t('returns.total_refund', 'Total Refund:')} <strong>Rs. {fmt(totalRefund)}</strong></span>
                     {refundMethod === 'credit_note' && (
-                      <span className="rsb-credit">📄 A Credit Note will be generated</span>
+                      <span className="rsb-credit">📄 {t('returns.credit_note_generated', 'A Credit Note will be generated')}</span>
                     )}
                   </div>
                   <button
@@ -371,7 +373,7 @@ export default function ReturnsPage() {
                     onClick={handleSubmit}
                     disabled={submitting || !reason}
                   >
-                    {submitting ? 'Processing…' : 'Process Return'}
+                    {submitting ? t('returns.processing', 'Processing…') : t('returns.process_return', 'Process Return')}
                   </button>
                 </div>
               )}
@@ -383,18 +385,18 @@ export default function ReturnsPage() {
         /* ── Step 3: Success screen ── */
         <div className="returns-success">
           <div className="returns-success-icon">✅</div>
-          <h2 className="returns-success-title">Return Processed Successfully</h2>
+          <h2 className="returns-success-title">{t('returns.success_title', 'Return Processed Successfully')}</h2>
           <div className="returns-success-card">
-            <div className="rim-row"><span>Return #</span><strong className="returns-rn">{completed.return_number}</strong></div>
-            <div className="rim-row"><span>Refund Method</span><strong>{completed.refund_method.replace('_', ' ')}</strong></div>
-            <div className="rim-row"><span>Total Refund</span><strong>Rs. {fmt(completed.total_refund)}</strong></div>
+            <div className="rim-row"><span>{t('returns.return_num', 'Return #')}</span><strong className="returns-rn">{completed.return_number}</strong></div>
+            <div className="rim-row"><span>{t('returns.refund_method', 'Refund Method')}</span><strong>{completed.refund_method.replace('_', ' ')}</strong></div>
+            <div className="rim-row"><span>{t('returns.total_refund', 'Total Refund')}</span><strong>Rs. {fmt(completed.total_refund)}</strong></div>
             {completed.refund_method === 'credit_note' && (
               <>
                 <div className="returns-credit-highlight">
-                  <div className="rch-label">Credit Note ID</div>
+                  <div className="rch-label">{t('returns.credit_note_id', 'Credit Note ID')}</div>
                   <div className="rch-value">{completed.return_number}</div>
                   <div className="rch-hint">
-                    Customer can use this at the POS to deduct <strong>Rs. {fmt(completed.credit_remaining)}</strong> from their next purchase.
+                    {t('returns.credit_note_hint_pre', 'Customer can use this at the POS to deduct')} <strong>Rs. {fmt(completed.credit_remaining)}</strong> {t('returns.credit_note_hint_post', 'from their next purchase.')}
                   </div>
                 </div>
               </>
@@ -402,10 +404,10 @@ export default function ReturnsPage() {
           </div>
           <div className="returns-success-actions">
             <button className="btn btn-secondary btn-lg" onClick={handleReset}>
-              ↩ New Return
+              ↩ {t('returns.new_return', 'New Return')}
             </button>
             <button className="btn btn-primary btn-lg" onClick={() => setShowReceipt(true)}>
-              🖨️ Print Credit Note
+              🖨️ {t('returns.print_credit_note', 'Print Credit Note')}
             </button>
           </div>
         </div>

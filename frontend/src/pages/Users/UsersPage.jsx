@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { useToast } from '@/context/ToastContext'
 import api from '@/services/api'
@@ -15,6 +16,7 @@ const ROLE_BADGE = {
 
 // ─── User Form Modal ──────────────────────────────────────────
 function UserModal({ user, onClose, onSaved }) {
+  const { t } = useTranslation()
   const toast = useToast()
   const isEdit = !!user
   const [loading, setLoading] = useState(false)
@@ -40,14 +42,14 @@ function UserModal({ user, onClose, onSaved }) {
       if (isEdit && !payload.password) delete payload.password
       if (isEdit) {
         await api.put(`/users/${user.user_id}`, payload)
-        toast.success('User updated')
+        toast.success(t('users.user_updated', 'User updated'))
       } else {
         await api.post('/users', payload)
-        toast.success('User created')
+        toast.success(t('users.user_created', 'User created'))
       }
       onSaved()
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Failed to save user')
+      toast.error(err?.response?.data?.message || t('users.save_failed', 'Failed to save user'))
     } finally {
       setLoading(false)
     }
@@ -57,31 +59,31 @@ function UserModal({ user, onClose, onSaved }) {
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{isEdit ? 'Edit User' : 'Create User'}</h2>
+          <h2>{isEdit ? t('users.edit_user', 'Edit User') : t('users.create_user', 'Create User')}</h2>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
         <form onSubmit={handleSubmit} className="modal-body">
           <div className="form-row">
             <div className="form-group">
-              <label>First Name</label>
+              <label>{t('users.first_name', 'First Name')}</label>
               <input className="input" value={form.first_name} onChange={e => set('first_name', e.target.value)} placeholder="John" />
             </div>
             <div className="form-group">
-              <label>Last Name</label>
+              <label>{t('users.last_name', 'Last Name')}</label>
               <input className="input" value={form.last_name} onChange={e => set('last_name', e.target.value)} placeholder="Doe" />
             </div>
           </div>
           <div className="form-group">
-            <label>Display Name (shown on PIN screen)</label>
+            <label>{t('users.display_name', 'Display Name (shown on PIN screen)')}</label>
             <input className="input" value={form.display_name} onChange={e => set('display_name', e.target.value)} placeholder="John" />
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label>Username *</label>
+              <label>{t('users.username', 'Username')} *</label>
               <input className="input" value={form.username} onChange={e => set('username', e.target.value)} required placeholder="johnd" />
             </div>
             <div className="form-group">
-              <label>Role *</label>
+              <label>{t('users.role', 'Role')} *</label>
               <select className="input" value={form.role} onChange={e => set('role', e.target.value)}>
                 {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
               </select>
@@ -89,16 +91,16 @@ function UserModal({ user, onClose, onSaved }) {
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label>Email</label>
+              <label>{t('users.email', 'Email')}</label>
               <input className="input" type="email" value={form.email} onChange={e => set('email', e.target.value)} placeholder="john@shop.com" />
             </div>
             <div className="form-group">
-              <label>Phone</label>
+              <label>{t('users.phone', 'Phone')}</label>
               <input className="input" value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+94771234567" />
             </div>
           </div>
           <div className="form-group">
-            <label>{isEdit ? 'New Password (leave blank to keep)' : 'Password *'}</label>
+            <label>{isEdit ? t('users.new_password_hint', 'New Password (leave blank to keep)') : `${t('users.password', 'Password')} *`}</label>
             <input
               className="input"
               type="password"
@@ -110,12 +112,12 @@ function UserModal({ user, onClose, onSaved }) {
           </div>
           <div className="form-check">
             <input id="um-active" type="checkbox" checked={form.is_active} onChange={e => set('is_active', e.target.checked)} />
-            <label htmlFor="um-active">Active account</label>
+            <label htmlFor="um-active">{t('users.active_account', 'Active account')}</label>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>{t('common.cancel', 'Cancel')}</button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Saving...' : (isEdit ? 'Save Changes' : 'Create User')}
+              {loading ? t('common.saving', 'Saving...') : (isEdit ? t('common.save_changes', 'Save Changes') : t('users.create_user_btn', 'Create User'))}
             </button>
           </div>
         </form>
@@ -126,6 +128,7 @@ function UserModal({ user, onClose, onSaved }) {
 
 // ─── PIN Modal ────────────────────────────────────────────────
 function PinModal({ user, onClose }) {
+  const { t } = useTranslation()
   const toast = useToast()
   const [pin, setPin] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -133,24 +136,23 @@ function PinModal({ user, onClose }) {
 
   const handleSet = async (e) => {
     e.preventDefault()
-    if (!/^\d{6}$/.test(pin)) return toast.error('PIN must be exactly 6 digits')
-    if (pin !== confirm) return toast.error('PINs do not match')
+    if (!/^\d{6}$/.test(pin)) return toast.error(t('users.pin_digits_err', 'PIN must be exactly 6 digits'))
+    if (pin !== confirm) return toast.error(t('users.pin_match_err', 'PINs do not match'))
     setLoading(true)
     try {
       await api.post(`/users/${user.user_id}/set-pin`, { pin })
-      toast.success('PIN set successfully')
+      toast.success(t('users.pin_success', 'PIN set successfully'))
       onClose()
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Failed to set PIN')
+      toast.error(err?.response?.data?.message || t('users.pin_failed', 'Failed to set PIN'))
     } finally { setLoading(false) }
   }
 
   const handleClear = async () => {
-    if (!confirm) return toast.error('Type CLEAR to confirm')
     setLoading(true)
     try {
       await api.delete(`/users/${user.user_id}/pin`)
-      toast.success('PIN cleared')
+      toast.success(t('users.pin_cleared', 'PIN cleared'))
       onClose()
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Failed')
@@ -161,27 +163,27 @@ function PinModal({ user, onClose }) {
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal modal-sm" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Manage PIN — {user.display_name || user.username}</h2>
+          <h2>{t('users.manage_pin', 'Manage PIN')} — {user.display_name || user.username}</h2>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
         <form onSubmit={handleSet} className="modal-body">
-          <p className="modal-hint">Set a 6-digit PIN for quick cashier login.</p>
+          <p className="modal-hint">{t('users.pin_hint', 'Set a 6-digit PIN for quick cashier login.')}</p>
           <div className="form-group">
-            <label>New PIN</label>
+            <label>{t('users.new_pin', 'New PIN')}</label>
             <input className="input" type="password" inputMode="numeric" maxLength={6}
               value={pin} onChange={e => setPin(e.target.value.replace(/\D/g,''))} placeholder="123456" />
           </div>
           <div className="form-group">
-            <label>Confirm PIN</label>
+            <label>{t('users.confirm_pin', 'Confirm PIN')}</label>
             <input className="input" type="password" inputMode="numeric" maxLength={6}
               value={confirm} onChange={e => setConfirm(e.target.value.replace(/\D/g,''))} placeholder="123456" />
           </div>
           <div className="modal-footer">
             <button type="button" className="btn btn-danger" onClick={handleClear} disabled={loading}>
-              Clear PIN
+              {t('users.clear_pin', 'Clear PIN')}
             </button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Saving...' : 'Set PIN'}
+              {loading ? t('common.saving', 'Saving...') : t('users.set_pin', 'Set PIN')}
             </button>
           </div>
         </form>
@@ -192,6 +194,7 @@ function PinModal({ user, onClose }) {
 
 // ─── Main Page ────────────────────────────────────────────────
 export default function UsersPage() {
+  const { t } = useTranslation()
   const { user: me } = useAuth()
   const toast = useToast()
 
@@ -208,25 +211,25 @@ export default function UsersPage() {
       const res = await api.get('/users', { params })
       setUsers(res.data.data)
       setMeta(res.data.meta)
-    } catch { toast.error('Failed to load users') }
+    } catch { toast.error(t('users.load_failed', 'Failed to load users')) }
     finally { setLoading(false) }
-  }, [search, toast])
+  }, [search, toast, t])
 
   useEffect(() => { fetchUsers() }, [fetchUsers])
 
   const handleUnlock = async (u) => {
     try {
       await api.post(`/users/${u.user_id}/unlock`)
-      toast.success(`${u.username} unlocked`)
+      toast.success(`${u.username} ${t('users.unlocked', 'unlocked')}`)
       fetchUsers()
-    } catch { toast.error('Failed to unlock') }
+    } catch { toast.error(t('users.unlock_failed', 'Failed to unlock')) }
   }
 
   const handleDelete = async (u) => {
-    if (!window.confirm(`Delete user "${u.username}"? This cannot be undone.`)) return
+    if (!window.confirm(t('users.delete_confirm', 'Delete user "{{name}}"? This cannot be undone.', { name: u.username }))) return
     try {
       await api.delete(`/users/${u.user_id}`)
-      toast.success('User deleted')
+      toast.success(t('users.deleted', 'User deleted'))
       fetchUsers()
     } catch (err) { toast.error(err?.response?.data?.message || 'Failed') }
   }
@@ -237,12 +240,12 @@ export default function UsersPage() {
     <div className="users-page">
       <div className="page-header">
         <div>
-          <h1 className="page-title">User Management</h1>
-          <p className="page-subtitle">{meta.total || 0} users</p>
+          <h1 className="page-title">{t('users.title', 'User Management')}</h1>
+          <p className="page-subtitle">{meta.total || 0} {t('users.users', 'users')}</p>
         </div>
         {me?.role === 'admin' && (
           <button className="btn btn-primary" onClick={() => setModal({ type: 'user', data: null })}>
-            + Add User
+            + {t('users.add_user', 'Add User')}
           </button>
         )}
       </div>
@@ -251,7 +254,7 @@ export default function UsersPage() {
       <div className="users-toolbar">
         <input
           className="input"
-          placeholder="Search by name, username, email…"
+          placeholder={t('users.search_placeholder', 'Search by name, username, email…')}
           value={search}
           onChange={e => setSearch(e.target.value)}
           style={{ maxWidth: 320 }}
@@ -266,17 +269,17 @@ export default function UsersPage() {
           <table className="table">
             <thead>
               <tr>
-                <th>User</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>PIN</th>
-                <th>Last Login</th>
-                <th>Actions</th>
+                <th>{t('users.user', 'User')}</th>
+                <th>{t('users.role', 'Role')}</th>
+                <th>{t('common.status', 'Status')}</th>
+                <th>{t('users.pin', 'PIN')}</th>
+                <th>{t('users.last_login', 'Last Login')}</th>
+                <th>{t('common.actions', 'Actions')}</th>
               </tr>
             </thead>
             <tbody>
               {users.length === 0 && (
-                <tr><td colSpan={6} style={{ textAlign:'center', color:'var(--text-secondary)', padding: 32 }}>No users found</td></tr>
+                <tr><td colSpan={6} style={{ textAlign:'center', color:'var(--text-secondary)', padding: 32 }}>{t('users.no_users', 'No users found')}</td></tr>
               )}
               {users.map(u => (
                 <tr key={u.user_id} className={!u.is_active ? 'row-inactive' : ''}>
@@ -294,15 +297,15 @@ export default function UsersPage() {
                   <td><span className={`badge ${ROLE_BADGE[u.role]}`}>{u.role}</span></td>
                   <td>
                     {u.locked_until && new Date(u.locked_until) > new Date()
-                      ? <span className="badge badge-danger">Locked</span>
+                      ? <span className="badge badge-danger">{t('users.locked', 'Locked')}</span>
                       : u.is_active
-                        ? <span className="badge badge-success">Active</span>
-                        : <span className="badge badge-warning">Inactive</span>}
+                        ? <span className="badge badge-success">{t('users.active', 'Active')}</span>
+                        : <span className="badge badge-warning">{t('users.inactive', 'Inactive')}</span>}
                   </td>
                   <td>
                     {u.role === 'cashier'
                       ? <span className={`badge ${u.has_pin ? 'badge-success' : 'badge-warning'}`}>
-                          {u.has_pin ? '● PIN set' : '○ No PIN'}
+                          {u.has_pin ? t('users.pin_set', '● PIN set') : t('users.no_pin', '○ No PIN')}
                         </span>
                       : <span className="badge" style={{ color: 'var(--text-secondary)' }}>N/A</span>}
                   </td>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { useToast } from '@/context/ToastContext'
 import api from '@/services/api'
@@ -34,6 +35,7 @@ function ToggleSwitch({ checked, onChange, disabled }) {
 }
 
 export default function SettingsPage() {
+  const { t } = useTranslation()
   const { user, fetchPermissions } = useAuth()
   const toast = useToast()
   const isAdmin = user?.role === 'admin'
@@ -87,12 +89,12 @@ export default function SettingsPage() {
     <div className="settings-page">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Settings</h1>
-          <p className="page-subtitle">Control which modules are visible to cashiers</p>
+          <h1 className="page-title">{t('settings.title', 'Settings')}</h1>
+          <p className="page-subtitle">{t('settings.subtitle', 'Control which modules are visible to cashiers')}</p>
         </div>
         {isAdmin && dirty && (
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving...' : '💾 Save Changes'}
+            {saving ? t('settings.saving', 'Saving...') : `💾 ${t('settings.save_changes', 'Save Changes')}`}
           </button>
         )}
       </div>
@@ -101,13 +103,13 @@ export default function SettingsPage() {
       <div className="settings-section">
         <div className="settings-section-header">
           <div>
-            <h2>🔒 Cashier Module Access</h2>
-            <p>Toggle which modules are visible in the cashier&apos;s sidebar. Admins and managers always have full access.</p>
+            <h2>🔒 {t('settings.cashier_access_title', 'Cashier Module Access')}</h2>
+            <p>{t('settings.cashier_access_desc', 'Toggle which modules are visible in the cashier\'s sidebar. Admins and managers always have full access.')}</p>
           </div>
           {isAdmin && (
             <div className="bulk-actions">
-              <button className="btn btn-secondary" onClick={enableAll}>Enable All</button>
-              <button className="btn btn-secondary" onClick={disableAll}>Disable All</button>
+              <button className="btn btn-secondary" onClick={enableAll}>{t('settings.enable_all', 'Enable All')}</button>
+              <button className="btn btn-secondary" onClick={disableAll}>{t('settings.disable_all', 'Disable All')}</button>
             </div>
           )}
         </div>
@@ -136,10 +138,10 @@ export default function SettingsPage() {
               <div key={key} className="module-card module-admin-only">
                 <div className="module-icon">🔐</div>
                 <div className="module-info">
-                  <div className="module-name">{key === 'users' ? 'User Management' : 'Settings'}</div>
-                  <div className="module-desc">Admin & Manager only — cannot be granted to cashiers</div>
+                  <div className="module-name">{key === 'users' ? t('settings.user_management', 'User Management') : t('settings.settings', 'Settings')}</div>
+                  <div className="module-desc">{t('settings.admin_only_desc', 'Admin & Manager only — cannot be granted to cashiers')}</div>
                 </div>
-                <span className="module-locked-badge">Admin only</span>
+                <span className="module-locked-badge">{t('settings.admin_only', 'Admin only')}</span>
               </div>
             ))}
           </div>
@@ -149,7 +151,7 @@ export default function SettingsPage() {
       {/* Info card */}
       <div className="settings-info-card">
         <span>ℹ️</span>
-        <p>Changes take effect immediately for all cashiers on their next page load or re-login. Existing sessions see the change on next navigation.</p>
+        <p>{t('settings.info_card', 'Changes take effect immediately for all cashiers on their next page load or re-login. Existing sessions see the change on next navigation.')}</p>
       </div>
     </div>
   )

@@ -103,15 +103,15 @@ export default function LoginPage() {
   }, [mode])
 
   const handlePinComplete = async (pin) => {
-    if (!selectedCashier) { setPinError('Please select a cashier first'); return }
+    if (!selectedCashier) { setPinError(t('auth.select_cashier_first', 'Please select a cashier first')); return }
     setPinError('')
     setLoading(true)
     try {
       await loginWithPin(selectedCashier.user_id, pin)
-      toast.success(`Welcome back, ${selectedCashier.display_name || selectedCashier.first_name || selectedCashier.username}!`)
+      toast.success(t('auth.welcome_back_name', 'Welcome back, {{name}}!', { name: selectedCashier.display_name || selectedCashier.first_name || selectedCashier.username }))
       navigate('/')
     } catch (err) {
-      setPinError(err?.response?.data?.message || 'Incorrect PIN')
+      setPinError(err?.response?.data?.message || t('auth.incorrect_pin', 'Incorrect PIN'))
     } finally {
       setLoading(false)
     }
@@ -123,10 +123,10 @@ export default function LoginPage() {
     setLoading(true)
     try {
       const u = await login(username, password)
-      toast.success(`Welcome back, ${u.first_name || u.username}!`)
+      toast.success(t('auth.welcome_back_name', 'Welcome back, {{name}}!', { name: u.first_name || u.username }))
       navigate('/')
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Login failed')
+      toast.error(err?.response?.data?.message || t('auth.login_failed', 'Login failed'))
     } finally {
       setLoading(false)
     }
@@ -146,7 +146,7 @@ export default function LoginPage() {
         <div className="login-logo">
           <div className="login-logo-icon">🏪</div>
           <h1 className="login-logo-title">POS System</h1>
-          <p className="login-logo-sub">Welcome back</p>
+          <p className="login-logo-sub">{t('auth.welcome_back', 'Welcome back')}</p>
         </div>
 
         {/* Mode tabs */}
@@ -155,13 +155,13 @@ export default function LoginPage() {
             className={`login-tab ${mode === 'pin' ? 'active' : ''}`}
             onClick={() => setMode('pin')}
           >
-            🔢 Cashier PIN
+            🔢 {t('auth.cashier_pin', 'Cashier PIN')}
           </button>
           <button
             className={`login-tab ${mode === 'password' ? 'active' : ''}`}
             onClick={() => setMode('password')}
           >
-            🔐 Admin Login
+            🔐 {t('auth.admin_login', 'Admin Login')}
           </button>
         </div>
 
@@ -171,14 +171,14 @@ export default function LoginPage() {
             {cashiers.length === 0 ? (
               <div className="no-cashiers">
                 <span>👤</span>
-                <p>No cashiers with PIN configured.</p>
+                <p>{t('auth.no_cashiers', 'No cashiers with PIN configured.')}</p>
                 <button className="btn btn-secondary" onClick={() => setMode('password')}>
-                  Use Admin Login
+                  {t('auth.use_admin_login', 'Use Admin Login')}
                 </button>
               </div>
             ) : (
               <>
-                <p className="pin-prompt">Select your profile</p>
+                <p className="pin-prompt">{t('auth.select_profile', 'Select your profile')}</p>
                 <div className="cashier-grid">
                   {cashiers.map(c => (
                     <CashierCard
@@ -193,11 +193,11 @@ export default function LoginPage() {
                 {selectedCashier && (
                   <div className="pin-section">
                     <p className="pin-selected-label">
-                      Enter PIN for <strong>{selectedCashier.display_name || selectedCashier.first_name || selectedCashier.username}</strong>
+                      {t('auth.enter_pin_for', 'Enter PIN for')} <strong>{selectedCashier.display_name || selectedCashier.first_name || selectedCashier.username}</strong>
                     </p>
                     <PinPad onComplete={handlePinComplete} disabled={loading} />
                     {pinError && <p className="pin-error">{pinError}</p>}
-                    {loading && <p className="pin-verifying">Verifying...</p>}
+                    {loading && <p className="pin-verifying">{t('auth.verifying', 'Verifying...')}</p>}
                   </div>
                 )}
               </>
@@ -209,7 +209,7 @@ export default function LoginPage() {
         {mode === 'password' && (
           <form className="password-form" onSubmit={handlePasswordLogin}>
             <div className="form-group">
-              <label htmlFor="lp-username">Username or Email</label>
+              <label htmlFor="lp-username">{t('auth.username', 'Username or Email')}</label>
               <input
                 id="lp-username"
                 className="input"
@@ -223,7 +223,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="lp-password">Password</label>
+              <label htmlFor="lp-password">{t('auth.password', 'Password')}</label>
               <input
                 id="lp-password"
                 className="input"
@@ -242,7 +242,7 @@ export default function LoginPage() {
               style={{ width: '100%', justifyContent: 'center', marginTop: 4 }}
               disabled={loading}
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? t('auth.signing_in', 'Signing in...') : t('auth.sign_in', 'Sign In')}
             </button>
           </form>
         )}
