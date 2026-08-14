@@ -1,0 +1,194 @@
+/* ─── Promotions Page ─────────────────────────────────────── */
+.promotions-page { display: flex; flex-direction: column; gap: 20px; }
+
+.promotions-header-wrap {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.promotions-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.promotions-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* ─── Stats row ────────────────────────────────────────────── */
+.promotions-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.promo-stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: var(--shadow);
+}
+.promo-stat-label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.promo-stat-value { font-size: 1.6rem; font-weight: 800; }
+.promo-stat-value.active-color { color: var(--success); }
+.promo-stat-value.inactive-color { color: var(--text-secondary); }
+.promo-stat-value.total-color { color: var(--accent); }
+
+/* ─── Table card ───────────────────────────────────────────── */
+.promotions-table-card { padding: 0; overflow: hidden; }
+.promotions-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.promotions-table-title { font-size: 0.95rem; font-weight: 700; }
+.promotions-table-wrap { overflow-x: auto; }
+
+/* ─── Promotion type pills ─────────────────────────────────── */
+.promo-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.promo-type-pill.percentage { background: var(--accent-bg); color: var(--accent); }
+.promo-type-pill.fixed_amount { background: #1a7f3722; color: var(--success); }
+
+/* ─── Value display ────────────────────────────────────────── */
+.promo-value { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ─── Validity ─────────────────────────────────────────────── */
+.promo-validity { font-size: 0.82rem; color: var(--text-secondary); white-space: nowrap; }
+.promo-validity strong { color: var(--text-primary); font-weight: 600; }
+
+/* ─── Empty state ──────────────────────────────────────────── */
+.promotions-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 60px 20px;
+  text-align: center;
+}
+.promotions-empty-icon { font-size: 3rem; opacity: 0.4; }
+.promotions-empty-text { color: var(--text-secondary); }
+
+/* ─── Loading ──────────────────────────────────────────────── */
+.promotions-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+}
+
+/* ─── Action buttons ───────────────────────────────────────── */
+.btn-sm { padding: 5px 10px; font-size: 0.78rem; }
+.table-actions-cell { display: flex; gap: 6px; justify-content: flex-end; }
+
+/* ─── Modals ───────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: promo-fade-in 0.15s ease;
+}
+.modal {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow);
+  animation: promo-pop-in 0.18s ease;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.modal-header h2 { font-size: 1.1rem; font-weight: 700; }
+.modal-close {
+  background: none; border: none;
+  font-size: 1.1rem; cursor: pointer;
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.modal-close:hover { background: var(--hover-bg); color: var(--text-primary); }
+.modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.modal-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+}
+
+/* ─── Form ─────────────────────────────────────────────────── */
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label { font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px; }
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border 0.15s;
+}
+.form-input:focus { outline: none; border-color: var(--accent); }
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* ─── Toggle checkbox ──────────────────────────────────────── */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.toggle-checkbox {
+  width: 18px; height: 18px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.toggle-label { font-size: 0.88rem; font-weight: 600; cursor: pointer; }
+
+@keyframes promo-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes promo-pop-in  { from { transform: scale(0.96); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ─── Responsive ───────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .promotions-stats { grid-template-columns: 1fr; }
+  .form-grid-2 { grid-template-columns: 1fr; }
+  .promotions-header-wrap { flex-direction: column; }
+}
