@@ -51,5 +51,27 @@
     "actions": "Actions",
     "created_at": "Created At",
     "updated_at": "Updated At"
+  },
+  "products": {
+    "title": "Products",
+    "subtitle": "Manage your catalogue and inventory",
+    "add_product": "Add Product",
+    "bulk_upload": "Bulk Upload",
+    "search_placeholder": "Search by name, SKU, or barcode...",
+    "all_categories": "All categories",
+    "fields": {
+      "name": "Name",
+      "sku": "SKU",
+      "barcode": "Barcode",
+      "category": "Category",
+      "brand": "Brand",
+      "cost_price": "Cost Price",
+      "retail_price": "Retail Price",
+      "wholesale_price": "Wholesale Price",
+      "measurement_unit": "Measurement Unit",
+      "stock_quantity": "Stock Quantity",
+      "low_stock_threshold": "Low Stock Threshold",
+      "description": "Description"
+    }
   }
 }

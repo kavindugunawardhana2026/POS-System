@@ -1,6 +1,8 @@
 'use strict';
 
 const productService = require('../services/product.service');
+const { parseSpreadsheet } = require('../middlewares/upload');
+const { ValidationError } = require('../errors/HttpErrors');
 
 async function list(req, res, next) {
   try {
@@ -45,4 +47,29 @@ async function lowStock(req, res, next) {
   } catch (err) { next(err); }
 }
 
-module.exports = { list, getById, create, update, remove, lowStock };
+/**
+ * POST /products/bulk-upload
+ * multipart/form-data with field "file" (.xlsx, .xls, or .csv)
+ * Returns counts + per-row errors.
+ */
+async function bulkUpload(req, res, next) {
+  try {
+    if (!req.file) throw new ValidationError('No file uploaded. Use field name "file".');
+    const rows = await parseSpreadsheet(req.file);
+    if (!rows.length) {
+      throw new ValidationError('Uploaded file is empty or has no data rows');
+    }
+    const result = await productService.bulkCreateProducts(rows);
+    const status = result.failed === 0 ? 200 : 207; // 207 Multi-Status when partial
+    res.status(status).json({
+      success: result.failed === 0,
+      message:
+        result.failed === 0
+          ? `Imported ${result.inserted.length} product(s) successfully`
+          : `Imported ${result.inserted.length} product(s); ${result.failed} failed`,
+      data: result,
+    });
+  } catch (err) { next(err); }
+}
+
+module.exports = { list, getById, create, update, remove, lowStock, bulkUpload };

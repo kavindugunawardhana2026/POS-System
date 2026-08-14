@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # POS System
 
 A localized, full-featured Point of Sale (POS) system for retail and wholesale businesses.
@@ -57,3 +58,6 @@ npm run dev
 ## Default Admin Credentials (dev only)
 - Username: `admin`
 - Password: `Admin@1234` *(change immediately in production)*
+=======
+# POS-System
+>>>>>>> e2021c37487059dff2da5944076b46f3496344e8
