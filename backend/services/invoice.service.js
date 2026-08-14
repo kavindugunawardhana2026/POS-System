@@ -192,7 +192,7 @@ async function createInvoice(body, actor) {
       await conn.execute(
         `INSERT INTO Invoice_Payments (invoice_id, payment_method, amount, reference_no, received_by)
          VALUES (?, 'wallet', ?, ?, ?)`,
-        [invoiceId, loyaltyDeduction, \`Points Redeemed: \${pointsRedeemed}\`, actor.user_id]
+        [invoiceId, loyaltyDeduction, `Points Redeemed: ${pointsRedeemed}`, actor.user_id]
       );
     }
     
