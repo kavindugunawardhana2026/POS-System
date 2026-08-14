@@ -7,10 +7,10 @@ import { validateCredit } from '@/services/returnService'
 import { listCustomers } from '@/services/customerService'
 import { getCurrentShift, openShift, closeShift } from '@/services/shiftService'
 import { getActivePromotions } from '@/services/promotionService'
+import api from '@/services/api'
 import { useTranslation } from 'react-i18next'
 import ReceiptPreview from '@/components/Receipt/ReceiptPreview'
 import { OpenShiftModal, CloseShiftModal } from '@/components/ShiftModals'
-import api from '@/services/api'
 import './POSPage.css'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -160,7 +160,7 @@ function HeldOrdersPanel({ onRestore, onClose }) {
 
 // ─── Checkout Panel ──────────────────────────────────────────────────────────
 
-function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, selectedCustomer, currentShift, promoDiscount, onSuccess, onClose }) {
+function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, selectedCustomer, currentShift, promoDiscount, loyaltySettings, onSuccess, onClose }) {
   const { t } = useTranslation()
   const toast  = useToast()
   const { user } = useAuth()
@@ -177,9 +177,17 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, selectedCustomer,
   const [creditNote, setCreditNote]     = useState(null)  // { return_number, credit_remaining }
   const [creditChecking, setCreditChecking] = useState(false)
 
+  const [useLoyalty, setUseLoyalty] = useState(false)
+
   const discountAmt    = round2(Number(invoiceDiscount) || 0)
   const creditAmt      = creditNote ? round2(Math.min(creditNote.credit_remaining, grandTotal - discountAmt)) : 0
-  const finalTotal     = round2(grandTotal - discountAmt - creditAmt)
+  
+  const redeemVal = Number(loyaltySettings?.loyalty_redemption_value) || 0
+  const maxLoyaltyDeduction = selectedCustomer ? selectedCustomer.loyalty_points * redeemVal : 0
+  const loyaltyAmt = useLoyalty && redeemVal > 0 ? round2(Math.min(maxLoyaltyDeduction, grandTotal - discountAmt - creditAmt)) : 0
+  const pointsRedeemed = useLoyalty && redeemVal > 0 ? Math.ceil(loyaltyAmt / redeemVal) : 0
+  
+  const finalTotal     = round2(grandTotal - discountAmt - creditAmt - loyaltyAmt)
   const receivedAmt    = paymentMethod === 'mixed' ? (Number(mixedCash) || 0) + (Number(mixedCard) || 0) : (Number(received) || 0)
   const change         = paymentMethod === 'card' || paymentMethod === 'transfer' ? 0 : round2(Math.max(0, receivedAmt - finalTotal))
   const balance        = paymentMethod === 'card' || paymentMethod === 'transfer' ? 0 : round2(Math.max(0, finalTotal - receivedAmt))
@@ -231,6 +239,7 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, selectedCustomer,
         })),
         payments,
         shift_id: currentShift?.shift_id || null,
+        points_redeemed: pointsRedeemed,
       }
       const res = await createInvoice(payload)
       toast.success(`Invoice ${res.data.data.invoice_number} created!`)
@@ -302,6 +311,33 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, selectedCustomer,
                 <span>- Rs. {fmt(creditAmt)}</span>
               </div>
             )}
+
+            {selectedCustomer && selectedCustomer.loyalty_points > 0 && redeemVal > 0 && (
+              <div className="pos-summary-row" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', background: 'var(--bg)', padding: '0.5rem', borderRadius: 6, border: '1px dashed var(--accent)', marginTop: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <input 
+                    type="checkbox" 
+                    id="useLoyalty" 
+                    checked={useLoyalty} 
+                    onChange={e => setUseLoyalty(e.target.checked)} 
+                  />
+                  <label htmlFor="useLoyalty" style={{ margin: 0, fontWeight: 'bold' }}>
+                    Redeem Points (Bal: {selectedCustomer.loyalty_points})
+                  </label>
+                </div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginLeft: '1.5rem' }}>
+                  Max Value: Rs. {fmt(maxLoyaltyDeduction)}
+                </div>
+              </div>
+            )}
+
+            {loyaltyAmt > 0 && (
+              <div className="pos-summary-row" style={{ color: 'var(--success)', fontStyle: 'italic', fontSize: '0.85rem' }}>
+                <span>Loyalty Applied (-{pointsRedeemed} pts)</span>
+                <span>- Rs. {fmt(loyaltyAmt)}</span>
+              </div>
+            )}
+
             <div className="pos-summary-row pos-summary-total">
               <span>{t('pos.total', 'Total')}</span>
               <span>Rs. {fmt(finalTotal)}</span>
@@ -445,8 +481,9 @@ export default function POSPage() {
   const [checkingShift, setCheckingShift] = useState(true)
   const [showCloseShift, setShowCloseShift] = useState(false)
 
-  // Promotions
+  // Promotions & Loyalty
   const [activePromotions, setActivePromotions] = useState([])
+  const [loyaltySettings, setLoyaltySettings] = useState(null)
 
   useEffect(() => {
     getCurrentShift()
@@ -456,6 +493,10 @@ export default function POSPage() {
 
     getActivePromotions()
       .then(r => setActivePromotions(r.data.data))
+      .catch(() => {})
+      
+    api.get('/settings')
+      .then(r => setLoyaltySettings(r.data.data))
       .catch(() => {})
   }, [])
 
@@ -952,6 +993,7 @@ export default function POSPage() {
           selectedCustomer={selectedCustomer}
           currentShift={currentShift}
           promoDiscount={promoDiscount}
+          loyaltySettings={loyaltySettings}
           onSuccess={handleInvoiceSuccess}
           onClose={() => setShowCheckout(false)}
         />

@@ -41,13 +41,25 @@ export default function SettingsPage() {
   const isAdmin = user?.role === 'admin'
 
   const [permissions, setPermissions] = useState({})
+  const [loyaltySettings, setLoyaltySettings] = useState({ loyalty_earn_rate: 1, loyalty_redemption_value: 1 })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
 
   useEffect(() => {
-    api.get('/settings/module-permissions')
-      .then(res => { setPermissions(res.data.data); setLoading(false) })
+    Promise.all([
+      api.get('/settings/module-permissions'),
+      api.get('/settings')
+    ])
+      .then(([permRes, allRes]) => {
+        setPermissions(permRes.data.data)
+        const all = allRes.data.data
+        setLoyaltySettings({
+          loyalty_earn_rate: all.loyalty_earn_rate !== undefined ? all.loyalty_earn_rate : 1,
+          loyalty_redemption_value: all.loyalty_redemption_value !== undefined ? all.loyalty_redemption_value : 1
+        })
+        setLoading(false)
+      })
       .catch(() => { toast.error('Failed to load settings'); setLoading(false) })
   }, [toast])
 
@@ -61,8 +73,13 @@ export default function SettingsPage() {
     setSaving(true)
     try {
       await api.put('/settings/module-permissions', permissions)
+      
+      // Save Loyalty settings
+      await api.put('/settings', { key: 'loyalty_earn_rate', value: String(loyaltySettings.loyalty_earn_rate) })
+      await api.put('/settings', { key: 'loyalty_redemption_value', value: String(loyaltySettings.loyalty_redemption_value) })
+      
       await fetchPermissions() // refresh global context
-      toast.success('Module permissions saved')
+      toast.success('Settings saved successfully')
       setDirty(false)
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Failed to save')
@@ -146,6 +163,39 @@ export default function SettingsPage() {
             ))}
           </div>
         )}
+      </div>
+
+      <div className="settings-section" style={{ marginTop: '2rem' }}>
+        <div className="settings-section-header">
+          <div>
+            <h2>⭐ Loyalty & Rewards Settings</h2>
+            <p>Configure how points are earned and redeemed by customers.</p>
+          </div>
+        </div>
+        <div className="card" style={{ padding: '1rem', display: 'flex', gap: '2rem' }}>
+          <div className="form-group" style={{ flex: 1 }}>
+            <label>Earn Rate (Points per Rs. 100 spent)</label>
+            <input 
+              type="number" min="0" step="1" 
+              value={loyaltySettings.loyalty_earn_rate} 
+              onChange={e => {
+                setLoyaltySettings({...loyaltySettings, loyalty_earn_rate: e.target.value})
+                setDirty(true)
+              }}
+            />
+          </div>
+          <div className="form-group" style={{ flex: 1 }}>
+            <label>Redemption Value (Rs. per 1 Point)</label>
+            <input 
+              type="number" min="0" step="0.5" 
+              value={loyaltySettings.loyalty_redemption_value} 
+              onChange={e => {
+                setLoyaltySettings({...loyaltySettings, loyalty_redemption_value: e.target.value})
+                setDirty(true)
+              }}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Info card */}

@@ -19,7 +19,7 @@ import './Receipt.css'
  * Expected `shopInfo` shape:
  *  { store_name, address, phone, receipt_header, receipt_footer, thermal_printer }
  */
-const Receipt = forwardRef(function Receipt({ invoice, shopInfo, paperWidth }, ref) {
+const Receipt = forwardRef(function Receipt({ invoice, shopInfo, paperWidth, loyaltySettings }, ref) {
   const { t } = useTranslation()
   if (!invoice) return null
 
@@ -43,6 +43,11 @@ const Receipt = forwardRef(function Receipt({ invoice, shopInfo, paperWidth }, r
   const dt = new Date(invoice.created_at || Date.now())
   const dateStr = dt.toLocaleDateString('en-LK', { day:'2-digit', month:'short', year:'numeric' })
   const timeStr = dt.toLocaleTimeString('en-LK', { hour:'2-digit', minute:'2-digit', hour12: true })
+
+  // Calculate points earned
+  const earnRate = Number(loyaltySettings?.loyalty_earn_rate) || 0
+  const pointsEarned = (invoice.customer_name && earnRate > 0) ? Math.floor(invoice.total_amount * earnRate) : 0
+  const loyaltyPayment = payments.find(p => p.payment_method === 'wallet' && String(p.reference_no).includes('Points'))
 
   return (
     <div ref={ref} className={`receipt receipt-${width === '58mm' ? '58' : '80'}`}>
@@ -154,7 +159,7 @@ const Receipt = forwardRef(function Receipt({ invoice, shopInfo, paperWidth }, r
       <div className="rct-payments">
         {payments.map((p, i) => (
           <div key={i} className="rct-total-row">
-            <span>{p.payment_method.charAt(0).toUpperCase() + p.payment_method.slice(1)}</span>
+            <span>{p.payment_method === 'wallet' && String(p.reference_no).includes('Points') ? 'Loyalty Redeemed' : p.payment_method.charAt(0).toUpperCase() + p.payment_method.slice(1)}</span>
             <span>{fmt(p.amount)}</span>
           </div>
         ))}
@@ -171,6 +176,15 @@ const Receipt = forwardRef(function Receipt({ invoice, shopInfo, paperWidth }, r
           </div>
         )}
       </div>
+
+      {pointsEarned > 0 && (
+        <>
+          <div className="rct-divider rct-dashes" />
+          <div className="rct-totals" style={{ textAlign: 'center', fontWeight: 'bold' }}>
+            <span>🎉 You earned {pointsEarned} Points!</span>
+          </div>
+        </>
+      )}
 
       <div className="rct-divider rct-dashes" />
 

@@ -6,6 +6,7 @@ const AppError = require('../errors/AppError');
 const { generateInvoiceNumber, round2 } = require('../utils/formatters');
 const { calculateInvoiceTotals, resolveUnitPrice } = require('../utils/calculators');
 const returnSvc = require('./return.service');
+const settingSvc = require('./setting.service');
 
 /**
  * Get next daily invoice sequence number.
@@ -126,7 +127,35 @@ async function createInvoice(body, actor) {
     if (creditNote) {
       creditDeduction = round2(Math.min(creditNote.credit_remaining, baseTotal));
     }
-    const total_amount = round2(baseTotal - creditDeduction);
+    
+    // Process Loyalty Points
+    const settings = await settingSvc.getAllSettings();
+    const earnRate = Number(settings.loyalty_earn_rate) || 0;
+    const redeemVal = Number(settings.loyalty_redemption_value) || 0;
+    
+    let loyaltyDeduction = 0;
+    let pointsRedeemed = Number(body.points_redeemed) || 0;
+    
+    if (pointsRedeemed > 0 && customer_id) {
+      const [[customer]] = await conn.execute(`SELECT loyalty_points FROM Customers WHERE customer_id = ?`, [customer_id]);
+      if (!customer || customer.loyalty_points < pointsRedeemed) {
+        throw new AppError('Insufficient loyalty points', 400, 'INSUFFICIENT_POINTS');
+      }
+      loyaltyDeduction = round2(pointsRedeemed * redeemVal);
+      // Ensure we don't deduct more than the remaining total
+      if (loyaltyDeduction > (baseTotal - creditDeduction)) {
+        loyaltyDeduction = baseTotal - creditDeduction;
+        pointsRedeemed = Math.ceil(loyaltyDeduction / redeemVal);
+      }
+    }
+
+    const total_amount = round2(baseTotal - creditDeduction - loyaltyDeduction);
+    
+    // Calculate points earned on the final amount paid
+    let pointsEarned = 0;
+    if (!is_quote && customer_id && earnRate > 0) {
+      pointsEarned = Math.floor(total_amount * earnRate);
+    }
 
     const paidAmount = is_quote ? 0 : (payments || []).reduce((s, p) => s + Number(p.amount), 0);
     const changeDue  = is_quote ? 0 : round2(Math.max(0, paidAmount - total_amount));
@@ -142,7 +171,7 @@ async function createInvoice(body, actor) {
          total_amount, paid_amount, change_due, balance_due, sale_type, status, notes)
        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       [invoice_number, actor.user_id, customer_id ?? null, shift_id ?? null,
-       subtotal, round2(invoiceDiscount + creditDeduction), 0, total_amount, paidAmount,
+       subtotal, round2(invoiceDiscount + creditDeduction + loyaltyDeduction), 0, total_amount, paidAmount,
        changeDue, balanceDue, sale_type, status, notes ?? null]
     );
     const invoiceId = invoiceResult.insertId;
@@ -155,6 +184,23 @@ async function createInvoice(body, actor) {
         `INSERT INTO Invoice_Payments (invoice_id, payment_method, amount, reference_no, received_by)
          VALUES (?, 'credit', ?, ?, ?)`,
         [invoiceId, creditDeduction, credit_note_number, actor.user_id]
+      );
+    }
+    
+    // Log loyalty payment
+    if (loyaltyDeduction > 0) {
+      await conn.execute(
+        `INSERT INTO Invoice_Payments (invoice_id, payment_method, amount, reference_no, received_by)
+         VALUES (?, 'wallet', ?, ?, ?)`,
+        [invoiceId, loyaltyDeduction, \`Points Redeemed: \${pointsRedeemed}\`, actor.user_id]
+      );
+    }
+    
+    // Update Customer loyalty points
+    if (customer_id && (pointsEarned > 0 || pointsRedeemed > 0)) {
+      await conn.execute(
+        `UPDATE Customers SET loyalty_points = loyalty_points + ? - ? WHERE customer_id = ?`,
+        [pointsEarned, pointsRedeemed, customer_id]
       );
     }
 

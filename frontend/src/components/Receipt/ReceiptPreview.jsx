@@ -17,6 +17,13 @@ export default function ReceiptPreview({ invoice, shopInfo, onClose, autoPrint =
   const [paperWidth, setPaperWidth] = useState(
     shopInfo?.thermal_printer || '80mm'
   )
+  const [loyaltySettings, setLoyaltySettings] = useState(null)
+  
+  useEffect(() => {
+    import('@/services/api').then(module => {
+      module.default.get('/settings').then(res => setLoyaltySettings(res.data.data)).catch(() => {})
+    })
+  }, [])
   const receiptPrintRef = useRef(null)
   const printPortalRef  = useRef(null)
 
@@ -97,6 +104,7 @@ export default function ReceiptPreview({ invoice, shopInfo, onClose, autoPrint =
               invoice={invoice}
               shopInfo={shopInfo}
               paperWidth={paperWidth}
+              loyaltySettings={loyaltySettings}
             />
           )}
         </div>
@@ -123,6 +131,7 @@ export default function ReceiptPreview({ invoice, shopInfo, onClose, autoPrint =
               invoice={invoice}
               shopInfo={shopInfo}
               paperWidth={paperWidth}
+              loyaltySettings={loyaltySettings}
             />
           ),
           printPortalRef.current
