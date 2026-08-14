@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const { Router } = require('express');
 const ctrl = require('../../controllers/shift.controller');
@@ -8,6 +8,7 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/',    ctrl.list);
+router.get('/current', ctrl.current);
 router.get('/:id', ctrl.getById);
 router.post('/',   ctrl.create);
 router.put('/:id', ctrl.update);

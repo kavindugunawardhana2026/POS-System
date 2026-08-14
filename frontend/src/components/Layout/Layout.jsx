@@ -14,6 +14,7 @@ const ALL_NAV = [
   { to: '/suppliers', module: 'suppliers',label: 'nav.suppliers',  icon: '🏭' },
   { to: '/purchases', module: 'purchases',label: 'nav.purchases',  icon: '📥' },
   { to: '/reports',   module: 'reports',  label: 'nav.reports',    icon: '📈' },
+  { to: '/shifts',    module: 'reports',  label: 'Shifts',         icon: '🕒', adminOnly: true },
   { to: '/users',     module: 'users',    label: 'nav.users',      icon: '🧑‍💼', adminOnly: true },
   { to: '/settings',  module: 'settings', label: 'nav.settings',   icon: '⚙️', adminOnly: true },
 ]

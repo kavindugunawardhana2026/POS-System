@@ -13,6 +13,7 @@ import ReturnsPage from '@/pages/Returns/ReturnsPage'
 import ReportsPage from '@/pages/Reports/ReportsPage'
 import SettingsPage from '@/pages/Settings/SettingsPage'
 import UsersPage from '@/pages/Users/UsersPage'
+import ShiftsPage from '@/pages/Shifts/ShiftsPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import PrivateRoute from '@/components/Auth/PrivateRoute'
 
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
       { path: 'purchases', element: <PurchasesPage /> },
       { path: 'returns', element: <ReturnsPage /> },
       { path: 'reports', element: <ReportsPage /> },
+      { path: 'shifts', element: <ShiftsPage /> },
       { path: 'settings', element: <SettingsPage /> },
       { path: 'users', element: <UsersPage /> },
     ],

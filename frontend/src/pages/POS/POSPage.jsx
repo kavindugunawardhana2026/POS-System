@@ -5,8 +5,10 @@ import { listProducts } from '@/services/productService'
 import { createInvoice } from '@/services/invoiceService'
 import { validateCredit } from '@/services/returnService'
 import { listCustomers } from '@/services/customerService'
+import { getCurrentShift, openShift, closeShift } from '@/services/shiftService'
 import { useTranslation } from 'react-i18next'
 import ReceiptPreview from '@/components/Receipt/ReceiptPreview'
+import { OpenShiftModal, CloseShiftModal } from '@/components/ShiftModals'
 import api from '@/services/api'
 import './POSPage.css'
 
@@ -157,7 +159,7 @@ function HeldOrdersPanel({ onRestore, onClose }) {
 
 // ─── Checkout Panel ──────────────────────────────────────────────────────────
 
-function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, selectedCustomer, onSuccess, onClose }) {
+function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, selectedCustomer, currentShift, onSuccess, onClose }) {
   const { t } = useTranslation()
   const toast  = useToast()
   const { user } = useAuth()
@@ -227,6 +229,7 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, selectedCustomer,
           discount:   it.discount,
         })),
         payments,
+        shift_id: currentShift?.shift_id || null,
       }
       const res = await createInvoice(payload)
       toast.success(`Invoice ${res.data.data.invoice_number} created!`)
@@ -435,6 +438,39 @@ export default function POSPage() {
   const [showCheckout, setShowCheckout]     = useState(false)
   const [quoteInvoice, setQuoteInvoice]     = useState(null)
   const [savingQuote, setSavingQuote]       = useState(false)
+
+  // Shift logic
+  const [currentShift, setCurrentShift] = useState(null)
+  const [checkingShift, setCheckingShift] = useState(true)
+  const [showCloseShift, setShowCloseShift] = useState(false)
+
+  useEffect(() => {
+    getCurrentShift()
+      .then(r => setCurrentShift(r.data.data))
+      .catch(() => setCurrentShift(null))
+      .finally(() => setCheckingShift(false))
+  }, [])
+
+  const handleOpenShift = async (data) => {
+    try {
+      const res = await openShift(data)
+      setCurrentShift(res.data.data)
+      toast.success('Shift opened successfully!')
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to open shift')
+    }
+  }
+
+  const handleCloseShift = async (data) => {
+    try {
+      await closeShift(currentShift.shift_id, data)
+      setCurrentShift(null)
+      setShowCloseShift(false)
+      toast.success('Shift closed successfully!')
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to close shift')
+    }
+  }
 
   // Totals
   const itemCount  = cart.reduce((s, it) => s + Number(it.quantity), 0)
@@ -688,6 +724,9 @@ export default function POSPage() {
             <button className="pos-action-btn pos-hold-btn" onClick={holdOrder} disabled={cart.length === 0}>
               ⏸ {t('pos.hold_order', 'Hold')}
             </button>
+            <button className="pos-action-btn pos-close-shift-btn" onClick={() => setShowCloseShift(true)}>
+              🚪 Close Shift
+            </button>
             {cart.length > 0 && (
               <button className="pos-action-btn pos-clear-btn" onClick={clearCart}>
                 🗑 {t('pos.clear', 'Clear')}
@@ -839,7 +878,6 @@ export default function POSPage() {
           >
             {t('pos.charge', 'Charge')}  Rs. {fmt(grandTotal)}
           </button>
-          
           <button
             className="pos-charge-cta"
             style={{ background: 'var(--accent)', marginTop: 8 }}

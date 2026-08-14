@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const shiftService = require('../services/shift.service');
 
@@ -23,6 +23,13 @@ async function create(req, res, next) {
   } catch (err) { next(err); }
 }
 
+async function current(req, res, next) {
+  try {
+    const item = await shiftService.current(req.user);
+    res.json({ success: true, data: item });
+  } catch (err) { next(err); }
+}
+
 async function update(req, res, next) {
   try {
     const item = await shiftService.update(req.params.id, req.body, req.user);
@@ -37,4 +44,4 @@ async function remove(req, res, next) {
   } catch (err) { next(err); }
 }
 
-module.exports = { list, getById, create, update, remove };
+module.exports = { list, getById, create, update, remove, current };
