@@ -1,16 +1,15 @@
-﻿'use strict';
+'use strict';
 
 const { Router } = require('express');
 const ctrl = require('../../controllers/report.controller');
-const { authenticate, authorize } = require('../../middlewares/auth');
+const { authenticate } = require('../../middlewares/auth');
 
 const router = Router();
 router.use(authenticate);
 
-router.get('/',    ctrl.list);
-router.get('/:id', ctrl.getById);
-router.post('/',   ctrl.create);
-router.put('/:id', ctrl.update);
-router.delete('/:id', authorize('admin'), ctrl.remove);
+router.get('/sales-summary',  ctrl.salesSummary);
+router.get('/top-products',   ctrl.topProducts);
+router.get('/sales-by-period', ctrl.salesByPeriod);
+router.get('/payment-methods', ctrl.paymentMethods);
 
 module.exports = router;
