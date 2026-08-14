@@ -15,6 +15,7 @@ const settingRoutes  = require('./setting.routes');
 const shiftRoutes    = require('./shift.routes');
 const expenseRoutes  = require('./expense.routes');
 const dashboardRoutes= require('./dashboard.routes');
+const promotionRoutes = require('./promotion.routes');
 
 const router = Router();
 
@@ -32,5 +33,6 @@ router.use('/settings',  settingRoutes);
 router.use('/shifts',    shiftRoutes);
 router.use('/expenses',  expenseRoutes);
 router.use('/dashboard', dashboardRoutes);
+router.use('/promotions', promotionRoutes);
 
 module.exports = router;

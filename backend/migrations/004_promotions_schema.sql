@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS Promotions (
+  promotion_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  type ENUM('percentage', 'fixed_amount') NOT NULL DEFAULT 'percentage',
+  value DECIMAL(10,2) NOT NULL,
+  min_purchase_amount DECIMAL(10,2) DEFAULT 0.00,
+  start_date DATE DEFAULT NULL,
+  end_date DATE DEFAULT NULL,
+  is_active TINYINT(1) DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

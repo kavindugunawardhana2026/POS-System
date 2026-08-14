@@ -6,6 +6,7 @@ import { createInvoice } from '@/services/invoiceService'
 import { validateCredit } from '@/services/returnService'
 import { listCustomers } from '@/services/customerService'
 import { getCurrentShift, openShift, closeShift } from '@/services/shiftService'
+import { getActivePromotions } from '@/services/promotionService'
 import { useTranslation } from 'react-i18next'
 import ReceiptPreview from '@/components/Receipt/ReceiptPreview'
 import { OpenShiftModal, CloseShiftModal } from '@/components/ShiftModals'
@@ -159,7 +160,7 @@ function HeldOrdersPanel({ onRestore, onClose }) {
 
 // ─── Checkout Panel ──────────────────────────────────────────────────────────
 
-function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, selectedCustomer, currentShift, onSuccess, onClose }) {
+function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, selectedCustomer, currentShift, promoDiscount, onSuccess, onClose }) {
   const { t } = useTranslation()
   const toast  = useToast()
   const { user } = useAuth()
@@ -220,7 +221,7 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, selectedCustomer,
       const payload = {
         sale_type: saleMode,
         customer_id: selectedCustomer?.customer_id || null,
-        discount:  discountAmt,
+        discount:  round2(discountAmt + (promoDiscount || 0)),
         credit_note_number: creditNote?.return_number || null,
         items: cart.map(it => ({
           product_id: it.product_id,
@@ -444,11 +445,18 @@ export default function POSPage() {
   const [checkingShift, setCheckingShift] = useState(true)
   const [showCloseShift, setShowCloseShift] = useState(false)
 
+  // Promotions
+  const [activePromotions, setActivePromotions] = useState([])
+
   useEffect(() => {
     getCurrentShift()
       .then(r => setCurrentShift(r.data.data))
       .catch(() => setCurrentShift(null))
       .finally(() => setCheckingShift(false))
+
+    getActivePromotions()
+      .then(r => setActivePromotions(r.data.data))
+      .catch(() => {})
   }, [])
 
   const handleOpenShift = async (data) => {
@@ -474,7 +482,21 @@ export default function POSPage() {
 
   // Totals
   const itemCount  = cart.reduce((s, it) => s + Number(it.quantity), 0)
-  const grandTotal = round2(cart.reduce((s, it) => s + it.subtotal, 0))
+  const cartSubtotal = cart.reduce((s, it) => s + it.subtotal, 0)
+  
+  // Apply promotions
+  let promoDiscount = 0
+  activePromotions.forEach(p => {
+    if (cartSubtotal >= Number(p.min_purchase_amount)) {
+      if (p.type === 'percentage') {
+        promoDiscount += (cartSubtotal * Number(p.value) / 100)
+      } else {
+        promoDiscount += Number(p.value)
+      }
+    }
+  })
+  
+  const grandTotal = round2(cartSubtotal - promoDiscount)
 
   // ── Search products ──────────────────────────────────────────
   const searchProducts = useCallback(async (q) => {
@@ -862,8 +884,14 @@ export default function POSPage() {
             </div>
             <div className="pos-sum-row">
               <span>{t('pos.item_discounts', 'Item Discounts')}</span>
-              <span>− Rs. {fmt(cart.reduce((s, it) => s + it.discount, 0))}</span>
+              <span>− Rs. {fmt(cart.reduce((s, it) => s + it.discount, 0) + promoDiscount)}</span>
             </div>
+            {promoDiscount > 0 && (
+              <div className="pos-sum-row" style={{ color: 'var(--success)' }}>
+                <span>Promotions Applied</span>
+                <span>− Rs. {fmt(promoDiscount)}</span>
+              </div>
+            )}
             <div className="pos-sum-divider" />
             <div className="pos-sum-row pos-sum-total">
               <span>{t('pos.total', 'Grand Total')}</span>
@@ -922,6 +950,8 @@ export default function POSPage() {
           grandTotal={grandTotal}
           shopInfo={shopInfo}
           selectedCustomer={selectedCustomer}
+          currentShift={currentShift}
+          promoDiscount={promoDiscount}
           onSuccess={handleInvoiceSuccess}
           onClose={() => setShowCheckout(false)}
         />
