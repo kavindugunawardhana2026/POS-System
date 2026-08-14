@@ -412,7 +412,6 @@ export default function POSPage() {
   const [customerResults, setCustomerResults] = useState([])
   const [searchingCustomer, setSearchingCustomer] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState(null)
-  const searchRef                 = useRef(null)
 
   // Shop settings (for receipt) — API returns a plain { store_name, address, … } object
   const [shopInfo, setShopInfo] = useState({})
