@@ -35,8 +35,8 @@ async function listInvoices({ page = 1, limit = 20, status, from, to, customer_i
      FROM Invoices i
      LEFT JOIN Users u ON u.user_id = i.user_id
      LEFT JOIN Customers c ON c.customer_id = i.customer_id
-     ${where} ORDER BY i.created_at DESC LIMIT ? OFFSET ?`,
-    [...params, Number(limit), Number(offset)]
+     ${where} ORDER BY i.created_at DESC LIMIT ${Number(limit)} OFFSET ${Number(offset)}`,
+    params
   );
 
   return { data: rows, meta: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / limit) } };
