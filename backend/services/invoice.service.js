@@ -66,7 +66,7 @@ async function getInvoice(id) {
 async function createInvoice(body, actor) {
   const {
     items, payments, customer_id, sale_type = 'retail',
-    discount = 0, notes, shift_id, credit_note_number,
+    discount = 0, notes, shift_id, credit_note_number, is_quote = false,
   } = body;
 
   if (!items || items.length === 0) throw new AppError('Invoice must have at least one item', 400, 'EMPTY_INVOICE');
@@ -110,11 +110,13 @@ async function createInvoice(body, actor) {
         unit_cost_at_sale: product.cost_price,
       });
 
-      // Decrement stock
-      await conn.execute(
-        `UPDATE Products SET stock_quantity = stock_quantity - ? WHERE product_id = ?`,
-        [qty, product.product_id]
-      );
+      // Decrement stock only if not a quote
+      if (!is_quote) {
+        await conn.execute(
+          `UPDATE Products SET stock_quantity = stock_quantity - ? WHERE product_id = ?`,
+          [qty, product.product_id]
+        );
+      }
     }
 
     const { subtotal, discount: invoiceDiscount, total_amount: baseTotal } = calculateInvoiceTotals(invoiceItems, discount);
@@ -126,13 +128,13 @@ async function createInvoice(body, actor) {
     }
     const total_amount = round2(baseTotal - creditDeduction);
 
-    const paidAmount = (payments || []).reduce((s, p) => s + Number(p.amount), 0);
-    const changeDue  = round2(Math.max(0, paidAmount - total_amount));
-    const balanceDue = round2(Math.max(0, total_amount - paidAmount));
-    const status = balanceDue > 0 ? (paidAmount > 0 ? 'partial' : 'unpaid') : 'paid';
+    const paidAmount = is_quote ? 0 : (payments || []).reduce((s, p) => s + Number(p.amount), 0);
+    const changeDue  = is_quote ? 0 : round2(Math.max(0, paidAmount - total_amount));
+    const balanceDue = is_quote ? total_amount : round2(Math.max(0, total_amount - paidAmount));
+    const status = is_quote ? 'draft' : (balanceDue > 0 ? (paidAmount > 0 ? 'partial' : 'unpaid') : 'paid');
 
     const seq = await getNextSequence();
-    const invoice_number = generateInvoiceNumber(seq);
+    const invoice_number = is_quote ? `QT-${generateInvoiceNumber(seq)}` : generateInvoiceNumber(seq);
 
     const [invoiceResult] = await conn.execute(
       `INSERT INTO Invoices
@@ -166,15 +168,17 @@ async function createInvoice(body, actor) {
          it.tax_amount, it.subtotal, it.product_name, it.product_sku, it.unit_cost_at_sale]
       );
 
-      await conn.execute(
-        `INSERT INTO Stock_Movements
-          (product_id, change_type, reference_type, reference_id, quantity, unit_cost, user_id)
-         VALUES (?, 'sale', 'invoice', ?, ?, ?, ?)`,
-        [it.product_id, invoiceId, -it.quantity, it.unit_cost_at_sale, actor.user_id]
-      );
+      if (!is_quote) {
+        await conn.execute(
+          `INSERT INTO Stock_Movements
+            (product_id, change_type, reference_type, reference_id, quantity, unit_cost, user_id)
+           VALUES (?, 'sale', 'invoice', ?, ?, ?, ?)`,
+          [it.product_id, invoiceId, -it.quantity, it.unit_cost_at_sale, actor.user_id]
+        );
+      }
     }
 
-    if (payments && payments.length > 0) {
+    if (!is_quote && payments && payments.length > 0) {
       for (const pay of payments) {
         await conn.execute(
           `INSERT INTO Invoice_Payments (invoice_id, payment_method, amount, reference_no, received_by)

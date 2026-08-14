@@ -1,0 +1,23 @@
+A quick demo of PositiQ, a modern and efficient Point of Sales (POS) System built specifically for businesses in Sri Lanka. In this video, we showcase the Cashier Dashboard – designed for speed, simplicity, and seamless retail operations.
+
+🔹 System Highlights:
+- Easy-to-use cashier interface
+- Fast billing and transaction handling
+- Inventory and stock control
+- Multi-user access (Admin & Cashier)
+- Secure PIN-based login
+
+🌐 Official Website: https://www.positiq.lk/
+🖥️ Live Demo: https://positiq-demo.niolla-app.xyz/
+
+🔑 Demo PINs:
+• Admin: 123456
+• Cashier: 234567
+
+📱 Contact Us on WhatsApp: +94 74 122 7505
+
+If you’re looking for a reliable, locally built POS system to manage your store, supermarket, or restaurant – PositiQ is the solution for you!
+
+👉 Like, Share, and Subscribe for more updates and tutorials.
+
+#PositiQ #SriLankaPOS #CashierDashboard #RetailSoftware #PointOfSales #SriLankaBusiness #PositiQPOS #InventoryManagement

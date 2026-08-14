@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext'
 import { listProducts } from '@/services/productService'
 import { createInvoice } from '@/services/invoiceService'
 import { validateCredit } from '@/services/returnService'
+import { listCustomers } from '@/services/customerService'
 import { useTranslation } from 'react-i18next'
 import ReceiptPreview from '@/components/Receipt/ReceiptPreview'
 import api from '@/services/api'
@@ -156,13 +157,15 @@ function HeldOrdersPanel({ onRestore, onClose }) {
 
 // ─── Checkout Panel ──────────────────────────────────────────────────────────
 
-function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, onSuccess, onClose }) {
+function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, selectedCustomer, onSuccess, onClose }) {
   const { t } = useTranslation()
   const toast  = useToast()
   const { user } = useAuth()
   const [invoiceDiscount, setInvoiceDiscount] = useState('')
   const [paymentMethod, setPaymentMethod]     = useState('cash')
   const [received, setReceived]               = useState('')
+  const [mixedCash, setMixedCash]             = useState('')
+  const [mixedCard, setMixedCard]             = useState('')
   const [saving, setSaving]                   = useState(false)
   const [completedInvoice, setCompletedInvoice] = useState(null)
 
@@ -174,10 +177,10 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, onSuccess, onClos
   const discountAmt    = round2(Number(invoiceDiscount) || 0)
   const creditAmt      = creditNote ? round2(Math.min(creditNote.credit_remaining, grandTotal - discountAmt)) : 0
   const finalTotal     = round2(grandTotal - discountAmt - creditAmt)
-  const receivedAmt    = Number(received) || 0
-  const change         = round2(Math.max(0, receivedAmt - finalTotal))
-  const balance        = round2(Math.max(0, finalTotal - receivedAmt))
-  const canCharge      = receivedAmt >= finalTotal || paymentMethod !== 'cash' || finalTotal <= 0
+  const receivedAmt    = paymentMethod === 'mixed' ? (Number(mixedCash) || 0) + (Number(mixedCard) || 0) : (Number(received) || 0)
+  const change         = paymentMethod === 'card' || paymentMethod === 'transfer' ? 0 : round2(Math.max(0, receivedAmt - finalTotal))
+  const balance        = paymentMethod === 'card' || paymentMethod === 'transfer' ? 0 : round2(Math.max(0, finalTotal - receivedAmt))
+  const canCharge      = paymentMethod === 'cash' || paymentMethod === 'mixed' ? receivedAmt >= finalTotal : true
 
   const handleApplyCredit = async () => {
     const rn = creditInput.trim().toUpperCase()
@@ -200,13 +203,21 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, onSuccess, onClos
     try {
       const payments = []
       if (finalTotal > 0) {
-        payments.push({
-          payment_method: paymentMethod,
-          amount: paymentMethod === 'cash' ? receivedAmt : finalTotal,
-        })
+        if (paymentMethod === 'mixed') {
+          let c = Number(mixedCash) || 0
+          let cd = Number(mixedCard) || 0
+          if (c > 0) payments.push({ payment_method: 'cash', amount: c })
+          if (cd > 0) payments.push({ payment_method: 'card', amount: cd })
+        } else {
+          payments.push({
+            payment_method: paymentMethod,
+            amount: paymentMethod === 'cash' ? receivedAmt : finalTotal,
+          })
+        }
       }
       const payload = {
         sale_type: saleMode,
+        customer_id: selectedCustomer?.customer_id || null,
         discount:  discountAmt,
         credit_note_number: creditNote?.return_number || null,
         items: cart.map(it => ({
@@ -294,29 +305,52 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, onSuccess, onClos
           </div>
 
           <div className="pos-payment-methods">
-            {['cash','card','transfer'].map(m => (
+            {['cash','card','transfer','mixed'].map(m => (
               <button
                 key={m}
                 className={`pos-pm-btn ${paymentMethod === m ? 'active' : ''}`}
                 onClick={() => setPaymentMethod(m)}
               >
-                {m === 'cash' ? '💵 Cash' : m === 'card' ? '💳 Card' : '🏦 Transfer'}
+                {m === 'cash' ? '💵 Cash' : m === 'card' ? '💳 Card' : m === 'transfer' ? '🏦 Transfer' : '🔀 Mixed'}
               </button>
             ))}
           </div>
 
-          {paymentMethod === 'cash' && (
+          {(paymentMethod === 'cash' || paymentMethod === 'mixed') && (
             <>
-              <label className="pos-co-label">{t('pos.amount_paid', 'Amount Paid')}</label>
-              <input
-                className="pos-weight-input"
-                type="number" min="0" step="0.01"
-                placeholder={`Min Rs. ${fmt(finalTotal)}`}
-                value={received}
-                onChange={e => setReceived(e.target.value)}
-                autoFocus
-                onKeyDown={e => e.key === 'Enter' && canCharge && handleCharge()}
-              />
+              {paymentMethod === 'cash' ? (
+                <>
+                  <label className="pos-co-label">{t('pos.amount_paid', 'Amount Paid')}</label>
+                  <input
+                    className="pos-weight-input"
+                    type="number" min="0" step="0.01"
+                    placeholder={`Min Rs. ${fmt(finalTotal)}`}
+                    value={received}
+                    onChange={e => setReceived(e.target.value)}
+                    autoFocus
+                    onKeyDown={e => e.key === 'Enter' && canCharge && handleCharge()}
+                  />
+                </>
+              ) : (
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <div style={{ flex: 1 }}>
+                    <label className="pos-co-label">Cash Amount</label>
+                    <input
+                      className="pos-weight-input" style={{ fontSize: '1.2rem', padding: '10px' }}
+                      type="number" min="0" step="0.01"
+                      value={mixedCash} onChange={e => setMixedCash(e.target.value)}
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label className="pos-co-label">Card Amount</label>
+                    <input
+                      className="pos-weight-input" style={{ fontSize: '1.2rem', padding: '10px' }}
+                      type="number" min="0" step="0.01"
+                      value={mixedCard} onChange={e => setMixedCard(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
               <div className="pos-change-row">
                 <div className={`pos-change-box ${change > 0 ? 'pos-change-green' : ''}`}>
                   <div className="pos-change-label">{t('pos.change', 'Change')}</div>
@@ -367,10 +401,17 @@ export default function POSPage() {
   const [cart, setCart]           = useState([])
   const [saleMode, setSaleMode]   = useState('retail')   // 'retail' | 'wholesale'
 
-  // Search
+  // Search Products
   const [search, setSearch]       = useState('')
   const [results, setResults]     = useState([])
   const [searching, setSearching] = useState(false)
+  const searchRef                 = useRef(null)
+
+  // Customer Linking
+  const [customerSearch, setCustomerSearch] = useState('')
+  const [customerResults, setCustomerResults] = useState([])
+  const [searchingCustomer, setSearchingCustomer] = useState(false)
+  const [selectedCustomer, setSelectedCustomer] = useState(null)
   const searchRef                 = useRef(null)
 
   // Shop settings (for receipt) — API returns a plain { store_name, address, … } object
@@ -393,6 +434,8 @@ export default function POSPage() {
   const [weightProduct, setWeightProduct]   = useState(null)
   const [showHeld, setShowHeld]             = useState(false)
   const [showCheckout, setShowCheckout]     = useState(false)
+  const [quoteInvoice, setQuoteInvoice]     = useState(null)
+  const [savingQuote, setSavingQuote]       = useState(false)
 
   // Totals
   const itemCount  = cart.reduce((s, it) => s + Number(it.quantity), 0)
@@ -417,8 +460,39 @@ export default function POSPage() {
     return () => clearTimeout(t)
   }, [search, searchProducts])
 
+  // ── Search Customers ─────────────────────────────────────────
+  const searchCustomers = useCallback(async (q) => {
+    if (!q.trim()) { setCustomerResults([]); return }
+    setSearchingCustomer(true)
+    try {
+      const res = await listCustomers({ search: q, limit: 5 })
+      setCustomerResults(res.data.data || [])
+    } catch {
+      setCustomerResults([])
+    } finally {
+      setSearchingCustomer(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    const t = setTimeout(() => searchCustomers(customerSearch), 250)
+    return () => clearTimeout(t)
+  }, [customerSearch, searchCustomers])
+
   // Auto-focus search on mount
   useEffect(() => { searchRef.current?.focus() }, [])
+
+  // Keyboard Shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Insert') {
+        e.preventDefault()
+        searchRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   // ── Recalculate prices when mode changes ─────────────────────
   useEffect(() => {
@@ -507,7 +581,35 @@ export default function POSPage() {
     setShowCheckout(false)
     setCart([])
     setSaleMode('retail')
+    setSelectedCustomer(null)
+    setCustomerSearch('')
     searchRef.current?.focus()
+  }
+
+  const handleSaveQuote = async () => {
+    setSavingQuote(true)
+    try {
+      const payload = {
+        sale_type: saleMode,
+        customer_id: selectedCustomer?.customer_id || null,
+        discount: 0, // item discounts are already handled
+        is_quote: true,
+        items: cart.map(it => ({
+          product_id: it.product_id,
+          quantity:   it.quantity,
+          unit_price: it.unit_price,
+          discount:   it.discount,
+        })),
+        payments: []
+      }
+      const res = await createInvoice(payload)
+      toast.success(`Quotation ${res.data.data.invoice_number} created!`)
+      setQuoteInvoice(res.data.data)
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Failed to create quote')
+    } finally {
+      setSavingQuote(false)
+    }
   }
 
   const heldCount = (() => {
@@ -665,6 +767,44 @@ export default function POSPage() {
 
       {/* ── Right: Summary & Charge ──────────────────────────── */}
       <div className="pos-right">
+        
+        {/* Customer Linking */}
+        <div className="pos-customer-card">
+          {!selectedCustomer ? (
+            <div style={{ position: 'relative' }}>
+              <input
+                className="pos-search-input"
+                style={{ width: '100%', fontSize: '0.9rem', padding: '8px' }}
+                placeholder="Attach Customer (Name/Phone)..."
+                value={customerSearch}
+                onChange={e => setCustomerSearch(e.target.value)}
+              />
+              {customerResults.length > 0 && (
+                <div className="pos-search-results" style={{ width: '100%', top: '100%' }}>
+                  {customerResults.map(c => (
+                    <button key={c.customer_id} className="pos-search-result-item" onClick={() => { setSelectedCustomer(c); setCustomerResults([]); setCustomerSearch('') }}>
+                      <div className="pos-result-info">
+                        <span className="pos-result-name">{c.name}</span>
+                        <span className="pos-result-sku">{c.phone || c.email}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="pos-selected-customer">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '0.95rem' }}>{selectedCustomer.name}</div>
+                  <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{selectedCustomer.phone}</div>
+                </div>
+                <button className="pos-remove-btn" onClick={() => setSelectedCustomer(null)}>✕</button>
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="pos-summary-card">
           <div className="pos-summary-title">
             {t('pos.order_summary', 'Order Summary')}
@@ -699,6 +839,15 @@ export default function POSPage() {
             disabled={cart.length === 0}
           >
             {t('pos.charge', 'Charge')}  Rs. {fmt(grandTotal)}
+          </button>
+          
+          <button
+            className="pos-charge-cta"
+            style={{ background: 'var(--accent)', marginTop: 8 }}
+            onClick={handleSaveQuote}
+            disabled={cart.length === 0 || savingQuote}
+          >
+            {savingQuote ? 'Saving...' : 'Save as Quote'}
           </button>
 
           <div className="pos-quick-actions">
@@ -735,8 +884,18 @@ export default function POSPage() {
           saleMode={saleMode}
           grandTotal={grandTotal}
           shopInfo={shopInfo}
+          selectedCustomer={selectedCustomer}
           onSuccess={handleInvoiceSuccess}
           onClose={() => setShowCheckout(false)}
+        />
+      )}
+
+      {quoteInvoice && (
+        <ReceiptPreview
+          invoice={quoteInvoice}
+          shopInfo={shopInfo}
+          autoPrint={true}
+          onClose={() => { setQuoteInvoice(null); handleInvoiceSuccess(); }}
         />
       )}
     </div>

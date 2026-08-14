@@ -280,6 +280,20 @@
   background: var(--bg-secondary);
   border-left: 1px solid var(--border);
   padding: 16px;
+  gap: 16px;
+}
+.pos-customer-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+.pos-selected-customer {
+  padding: 8px;
+  background: var(--bg-primary);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  color: var(--text-primary);
 }
 .pos-summary-card {
   display: flex;

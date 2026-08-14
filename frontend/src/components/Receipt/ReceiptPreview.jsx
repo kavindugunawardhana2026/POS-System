@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import Receipt from './Receipt'
+import ReceiptA4 from './ReceiptA4'
 import './Receipt.css'
 
 /**
@@ -68,7 +69,7 @@ export default function ReceiptPreview({ invoice, shopInfo, onClose, autoPrint =
           <div className="receipt-preview-header-actions">
             {/* Paper width toggle */}
             <div className="receipt-preview-size">
-              {['80mm', '58mm'].map(w => (
+              {['80mm', '58mm', 'A4'].map(w => (
                 <button
                   key={w}
                   className={`receipt-size-btn ${paperWidth === w ? 'active' : ''}`}
@@ -84,12 +85,20 @@ export default function ReceiptPreview({ invoice, shopInfo, onClose, autoPrint =
 
         {/* Preview body */}
         <div className="receipt-preview-body">
-          <Receipt
-            ref={receiptPrintRef}
-            invoice={invoice}
-            shopInfo={shopInfo}
-            paperWidth={paperWidth}
-          />
+          {paperWidth === 'A4' ? (
+            <ReceiptA4
+              ref={receiptPrintRef}
+              invoice={invoice}
+              shopInfo={shopInfo}
+            />
+          ) : (
+            <Receipt
+              ref={receiptPrintRef}
+              invoice={invoice}
+              shopInfo={shopInfo}
+              paperWidth={paperWidth}
+            />
+          )}
         </div>
 
         {/* Footer actions */}
@@ -104,11 +113,18 @@ export default function ReceiptPreview({ invoice, shopInfo, onClose, autoPrint =
       {/* Hidden print portal (always in DOM, invisible on screen) */}
       {printPortalRef.current &&
         createPortal(
-          <Receipt
-            invoice={invoice}
-            shopInfo={shopInfo}
-            paperWidth={paperWidth}
-          />,
+          paperWidth === 'A4' ? (
+            <ReceiptA4
+              invoice={invoice}
+              shopInfo={shopInfo}
+            />
+          ) : (
+            <Receipt
+              invoice={invoice}
+              shopInfo={shopInfo}
+              paperWidth={paperWidth}
+            />
+          ),
           printPortalRef.current
         )
       }

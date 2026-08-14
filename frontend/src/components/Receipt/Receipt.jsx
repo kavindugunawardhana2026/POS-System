@@ -1,5 +1,6 @@
 import { forwardRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import Barcode from 'react-barcode'
 import './Receipt.css'
 
 /**
@@ -179,7 +180,14 @@ const Receipt = forwardRef(function Receipt({ invoice, shopInfo, paperWidth }, r
       </div>
 
       <div className="rct-barcode">
-        ||||  {invoice.invoice_number}  ||||
+        <Barcode 
+          value={invoice.invoice_number} 
+          width={paperWidth === '58mm' ? 1.2 : 1.5} 
+          height={40} 
+          fontSize={12} 
+          displayValue={true} 
+          margin={0} 
+        />
       </div>
 
       {/* Extra feed space for cutter */}
