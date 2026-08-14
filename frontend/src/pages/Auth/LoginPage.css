@@ -1,0 +1,210 @@
+/* ─── Page wrapper ───────────────────────────────────────────── */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated background blobs */
+.login-bg { position: absolute; inset: 0; pointer-events: none; }
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.18;
+  animation: blobPulse 8s ease-in-out infinite alternate;
+}
+.blob-1 { width: 500px; height: 500px; background: var(--accent); top: -120px; left: -120px; }
+.blob-2 { width: 400px; height: 400px; background: #a78bfa; bottom: -100px; right: -80px; animation-delay: -3s; }
+.blob-3 { width: 300px; height: 300px; background: #34d399; top: 50%; left: 50%; transform: translate(-50%,-50%); animation-delay: -6s; }
+
+@keyframes blobPulse {
+  from { transform: scale(1) translate(0, 0); }
+  to   { transform: scale(1.15) translate(20px, -20px); }
+}
+
+/* ─── Card ───────────────────────────────────────────────────── */
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 460px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 36px 36px 32px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  backdrop-filter: blur(12px);
+}
+
+/* ─── Logo ───────────────────────────────────────────────────── */
+.login-logo { text-align: center; margin-bottom: 28px; }
+.login-logo-icon {
+  font-size: 2.8rem;
+  display: block;
+  animation: bounce 2s ease-in-out infinite;
+}
+@keyframes bounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.login-logo-title { font-size: 1.6rem; font-weight: 800; margin: 6px 0 4px; }
+.login-logo-sub { color: var(--text-secondary); font-size: 0.875rem; }
+
+/* ─── Tabs ───────────────────────────────────────────────────── */
+.login-tabs {
+  display: flex;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 28px;
+}
+.login-tab {
+  flex: 1;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 7px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+.login-tab.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(88,166,255,0.35);
+}
+
+/* ─── PIN mode ───────────────────────────────────────────────── */
+.pin-mode { display: flex; flex-direction: column; align-items: center; }
+.pin-prompt { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 14px; text-align: center; }
+
+.cashier-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+  max-height: 200px;
+  overflow-y: auto;
+  width: 100%;
+  padding: 4px;
+}
+
+.cashier-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--bg-primary);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  min-width: 84px;
+}
+.cashier-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.cashier-card.selected {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  box-shadow: 0 0 0 3px rgba(88,166,255,0.2);
+}
+
+.cashier-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+}
+.cashier-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.cashier-name { font-size: 0.76rem; font-weight: 600; color: var(--text-primary); }
+
+.pin-section { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 4px; }
+.pin-selected-label { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 16px; text-align: center; }
+.pin-selected-label strong { color: var(--text-primary); }
+
+/* PIN dots */
+.pin-pad-wrapper { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.pin-dots { display: flex; gap: 10px; }
+.pin-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  transition: all 0.15s ease;
+}
+.pin-dot.filled {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 8px rgba(88,166,255,0.5);
+  transform: scale(1.1);
+}
+
+/* PIN grid */
+.pin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 240px;
+}
+.pin-btn {
+  height: 54px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  user-select: none;
+}
+.pin-btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  transform: scale(1.04);
+}
+.pin-btn:active:not(:disabled) { transform: scale(0.96); }
+.pin-btn:disabled { opacity: 0.4; cursor: default; }
+.pin-btn-clear { color: var(--warning); font-size: 0.9rem; font-weight: 700; }
+.pin-btn-back { color: var(--text-secondary); }
+
+.pin-error { color: var(--danger); font-size: 0.8rem; margin-top: 10px; text-align: center; animation: shake 0.3s ease; }
+.pin-verifying { color: var(--text-secondary); font-size: 0.8rem; margin-top: 8px; }
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.no-cashiers {
+  text-align: center; padding: 20px 0;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  color: var(--text-secondary);
+}
+.no-cashiers span { font-size: 2rem; }
+
+/* ─── Password form ──────────────────────────────────────────── */
+.password-form { display: flex; flex-direction: column; gap: 18px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

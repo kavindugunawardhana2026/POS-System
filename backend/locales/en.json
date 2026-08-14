@@ -1,0 +1,32 @@
+{
+  "auth": {
+    "login_success": "Login successful",
+    "logout_success": "Logged out successfully",
+    "invalid_credentials": "Invalid username or password",
+    "account_locked": "Account locked due to too many failed attempts. Try again after {{minutes}} minutes.",
+    "token_expired": "Session expired. Please log in again."
+  },
+  "products": {
+    "created": "Product created successfully",
+    "updated": "Product updated successfully",
+    "deleted": "Product deleted successfully",
+    "not_found": "Product not found",
+    "low_stock": "Product '{{name}}' is running low on stock"
+  },
+  "invoices": {
+    "created": "Invoice created successfully",
+    "cancelled": "Invoice cancelled",
+    "not_found": "Invoice not found",
+    "insufficient_stock": "Insufficient stock for '{{name}}'"
+  },
+  "returns": {
+    "created": "Return processed successfully",
+    "not_found": "Return record not found"
+  },
+  "errors": {
+    "not_found": "{{resource}} not found",
+    "validation": "Validation failed",
+    "forbidden": "You do not have permission to perform this action",
+    "server": "An unexpected error occurred"
+  }
+}

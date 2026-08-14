@@ -1,0 +1,55 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "pos": "Point of Sale",
+    "products": "Products",
+    "categories": "Categories",
+    "invoices": "Invoices",
+    "returns": "Returns",
+    "customers": "Customers",
+    "suppliers": "Suppliers",
+    "purchases": "Purchases",
+    "reports": "Reports",
+    "settings": "Settings",
+    "users": "Users",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Login",
+    "username": "Username",
+    "password": "Password",
+    "sign_in": "Sign In",
+    "signing_in": "Signing in..."
+  },
+  "pos": {
+    "title": "Point of Sale",
+    "search_product": "Search product or scan barcode...",
+    "cart": "Cart",
+    "empty_cart": "Cart is empty",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "total": "Total",
+    "checkout": "Checkout",
+    "clear": "Clear",
+    "sale_type": "Sale Type",
+    "retail": "Retail",
+    "wholesale": "Wholesale",
+    "payment_method": "Payment Method",
+    "amount_paid": "Amount Paid",
+    "change": "Change",
+    "process_sale": "Process Sale"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "loading": "Loading...",
+    "no_data": "No data found",
+    "actions": "Actions",
+    "created_at": "Created At",
+    "updated_at": "Updated At"
+  }
+}
