@@ -3,6 +3,8 @@ import { useToast } from '@/context/ToastContext'
 import { useAuth } from '@/context/AuthContext'
 import { listProducts } from '@/services/productService'
 import { createInvoice } from '@/services/invoiceService'
+import ReceiptPreview from '@/components/Receipt/ReceiptPreview'
+import api from '@/services/api'
 import './POSPage.css'
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -151,13 +153,14 @@ function HeldOrdersPanel({ onRestore, onClose }) {
 
 // ─── Checkout Panel ──────────────────────────────────────────────────────────
 
-function CheckoutPanel({ cart, saleMode, grandTotal, onSuccess, onClose }) {
+function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, onSuccess, onClose }) {
   const toast  = useToast()
   const { user } = useAuth()
   const [invoiceDiscount, setInvoiceDiscount] = useState('')
   const [paymentMethod, setPaymentMethod]     = useState('cash')
   const [received, setReceived]               = useState('')
   const [saving, setSaving]                   = useState(false)
+  const [completedInvoice, setCompletedInvoice] = useState(null)
 
   const discountAmt = round2(Number(invoiceDiscount) || 0)
   const finalTotal  = round2(grandTotal - discountAmt)
@@ -185,7 +188,16 @@ function CheckoutPanel({ cart, saleMode, grandTotal, onSuccess, onClose }) {
       }
       const res = await createInvoice(payload)
       toast.success(`Invoice ${res.data.data.invoice_number} created!`)
-      onSuccess(res.data.data)
+      // Show receipt — enrich invoice with cashier and cart item units for Kg formatting
+      const inv = {
+        ...res.data.data,
+        cashier: user?.username,
+        items: (res.data.data.items || []).map((it, i) => ({
+          ...it,
+          unit: cart[i]?.unit || 'units',
+        })),
+      }
+      setCompletedInvoice(inv)
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Failed to create invoice')
     } finally {
@@ -272,6 +284,16 @@ function CheckoutPanel({ cart, saleMode, grandTotal, onSuccess, onClose }) {
           </button>
         </div>
       </div>
+
+      {/* Receipt preview appears after successful charge */}
+      {completedInvoice && (
+        <ReceiptPreview
+          invoice={completedInvoice}
+          shopInfo={shopInfo}
+          autoPrint={true}
+          onClose={() => { setCompletedInvoice(null); onSuccess(completedInvoice) }}
+        />
+      )}
     </div>
   )
 }
@@ -290,6 +312,22 @@ export default function POSPage() {
   const [results, setResults]     = useState([])
   const [searching, setSearching] = useState(false)
   const searchRef                 = useRef(null)
+
+  // Shop settings (for receipt) — API returns a plain { store_name, address, … } object
+  const [shopInfo, setShopInfo] = useState({})
+  useEffect(() => {
+    api.get('/settings').then(r => {
+      const raw = r.data.data
+      // Backend returns either a plain object or an array of {setting_key, setting_value}
+      if (Array.isArray(raw)) {
+        const map = {}
+        raw.forEach(s => { map[s.setting_key] = s.setting_value })
+        setShopInfo(map)
+      } else if (raw && typeof raw === 'object') {
+        setShopInfo(raw)
+      }
+    }).catch(() => {})
+  }, [])
 
   // Dialogs
   const [weightProduct, setWeightProduct]   = useState(null)
@@ -636,6 +674,7 @@ export default function POSPage() {
           cart={cart}
           saleMode={saleMode}
           grandTotal={grandTotal}
+          shopInfo={shopInfo}
           onSuccess={handleInvoiceSuccess}
           onClose={() => setShowCheckout(false)}
         />

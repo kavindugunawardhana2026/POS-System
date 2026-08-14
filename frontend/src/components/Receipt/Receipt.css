@@ -1,0 +1,206 @@
+/* ─────────────────────────────────────────────────────────────
+   Thermal Receipt CSS
+   – Screen: rendered inside a centered preview modal
+   – Print:  @media print styles take over, stripping all UI chrome
+   ───────────────────────────────────────────────────────────── */
+
+/* ── Screen wrapper (preview modal) ──────────────────────────── */
+.receipt-preview-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 600;
+  backdrop-filter: blur(4px);
+  padding: 24px;
+}
+.receipt-preview-shell {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 520px;
+  max-width: 95vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+}
+.receipt-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  gap: 12px;
+}
+.receipt-preview-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.receipt-preview-size {
+  display: flex;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2px;
+}
+.receipt-size-btn {
+  padding: 4px 14px;
+  border: none;
+  border-radius: 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+.receipt-size-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+.receipt-preview-body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  justify-content: center;
+  padding: 24px 16px;
+  background: #888;
+}
+.receipt-preview-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.receipt-preview-close:hover { background: var(--hover-bg); }
+.receipt-preview-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── The Receipt Paper ────────────────────────────────────────── */
+.receipt {
+  background: #fff;
+  color: #000;
+  font-family: 'Courier New', 'Courier', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  padding: 10px 8px 4px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.receipt-80 { width: 302px; } /* 80mm ≈ 302px at 96dpi */
+.receipt-58 { width: 219px; } /* 58mm ≈ 219px at 96dpi */
+
+/* ── Header ───────────────────────────────────────────────────── */
+.rct-header    { text-align: center; padding-bottom: 6px; }
+.rct-shop-name { font-size: 16px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+.rct-shop-address,
+.rct-shop-phone { font-size: 11px; color: #333; }
+.rct-shop-tagline {
+  font-size: 11px;
+  font-style: italic;
+  margin-top: 4px;
+  color: #555;
+}
+
+/* ── Dividers ─────────────────────────────────────────────────── */
+.rct-divider { margin: 6px 0; }
+.rct-dashes  { border-top: 1px dashed #000; }
+.rct-solid   { border-top: 1px solid #000; }
+
+/* ── Meta block ───────────────────────────────────────────────── */
+.rct-meta      { font-size: 11px; }
+.rct-meta-row  { display: flex; justify-content: space-between; }
+.rct-meta-row span:first-child { color: #555; }
+.rct-mode      { font-weight: 700; text-transform: uppercase; font-size: 10px; }
+
+/* ── Items table ──────────────────────────────────────────────── */
+.rct-items          { width: 100%; border-collapse: collapse; font-size: 11px; }
+.rct-items thead th {
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  border-bottom: 1px solid #ccc;
+  padding: 2px 0;
+}
+.rct-items td { padding: 2px 0; vertical-align: top; }
+
+.rct-col-name  { width: 45%; word-break: break-word; }
+.rct-col-qty   { width: 15%; text-align: right; }
+.rct-col-price { width: 20%; text-align: right; }
+.rct-col-total { width: 20%; text-align: right; font-weight: 600; }
+
+.rct-item-discount td { color: #888; font-size: 10px; font-style: italic; }
+
+/* ── Totals ───────────────────────────────────────────────────── */
+.rct-totals, .rct-payments { font-size: 11px; }
+.rct-total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 1px 0;
+}
+.rct-grand-total {
+  font-size: 14px;
+  font-weight: 900;
+  padding: 3px 0;
+}
+.rct-balance-due { color: #c00; font-weight: 700; }
+
+/* ── Footer ───────────────────────────────────────────────────── */
+.rct-footer {
+  text-align: center;
+  font-size: 11px;
+  font-style: italic;
+  color: #555;
+  padding: 4px 0;
+}
+.rct-barcode {
+  text-align: center;
+  font-size: 9px;
+  color: #888;
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+.rct-feed { height: 24px; } /* paper feed for auto-cutter */
+
+/* ─────────────────────────────────────────────────────────────
+   @media print — hide everything except the receipt
+   ───────────────────────────────────────────────────────────── */
+@media print {
+  /* Hide all page chrome */
+  body > *                      { display: none !important; }
+  .receipt-print-portal         { display: block !important; }
+
+  /* Reset page margins */
+  @page {
+    margin: 0;
+    size: 80mm auto;
+  }
+
+  .receipt-80 { width: 80mm; }
+  .receipt-58 {
+    width: 58mm;
+    font-size: 10px;
+  }
+
+  /* Remove screen shadows/bg */
+  .receipt {
+    box-shadow: none;
+    padding: 4mm 3mm;
+  }
+
+  /* Shrink shop name a tiny bit for 58mm */
+  .receipt-58 .rct-shop-name { font-size: 14px; }
+}
