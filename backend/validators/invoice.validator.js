@@ -21,6 +21,7 @@ const createInvoiceSchema = z.object({
   sale_type: z.enum(['retail','wholesale']).default('retail'),
   discount: z.number().nonnegative().default(0),
   notes: z.string().optional().nullable(),
+  credit_note_number: z.string().optional().nullable(),
   items: z.array(invoiceItemSchema).min(1),
   payments: z.array(paymentSchema).optional(),
 });

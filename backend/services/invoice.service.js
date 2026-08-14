@@ -5,6 +5,7 @@ const { NotFoundError } = require('../errors/HttpErrors');
 const AppError = require('../errors/AppError');
 const { generateInvoiceNumber, round2 } = require('../utils/formatters');
 const { calculateInvoiceTotals, resolveUnitPrice } = require('../utils/calculators');
+const returnSvc = require('./return.service');
 
 /**
  * Get next daily invoice sequence number.
@@ -63,9 +64,18 @@ async function getInvoice(id) {
 }
 
 async function createInvoice(body, actor) {
-  const { items, payments, customer_id, sale_type = 'retail', discount = 0, notes, shift_id } = body;
+  const {
+    items, payments, customer_id, sale_type = 'retail',
+    discount = 0, notes, shift_id, credit_note_number,
+  } = body;
 
   if (!items || items.length === 0) throw new AppError('Invoice must have at least one item', 400, 'EMPTY_INVOICE');
+
+  // Validate credit note BEFORE opening transaction
+  let creditNote = null;
+  if (credit_note_number) {
+    creditNote = await returnSvc.validateCreditNote(credit_note_number);
+  }
 
   const conn = await db.getConnection();
   try {
@@ -107,7 +117,15 @@ async function createInvoice(body, actor) {
       );
     }
 
-    const { subtotal, discount: invoiceDiscount, total_amount } = calculateInvoiceTotals(invoiceItems, discount);
+    const { subtotal, discount: invoiceDiscount, total_amount: baseTotal } = calculateInvoiceTotals(invoiceItems, discount);
+
+    // Apply credit note deduction if provided
+    let creditDeduction = 0;
+    if (creditNote) {
+      creditDeduction = round2(Math.min(creditNote.credit_remaining, baseTotal));
+    }
+    const total_amount = round2(baseTotal - creditDeduction);
+
     const paidAmount = (payments || []).reduce((s, p) => s + Number(p.amount), 0);
     const changeDue  = round2(Math.max(0, paidAmount - total_amount));
     const balanceDue = round2(Math.max(0, total_amount - paidAmount));
@@ -122,10 +140,21 @@ async function createInvoice(body, actor) {
          total_amount, paid_amount, change_due, balance_due, sale_type, status, notes)
        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       [invoice_number, actor.user_id, customer_id ?? null, shift_id ?? null,
-       subtotal, invoiceDiscount, 0, total_amount, paidAmount, changeDue, balanceDue,
-       sale_type, status, notes ?? null]
+       subtotal, round2(invoiceDiscount + creditDeduction), 0, total_amount, paidAmount,
+       changeDue, balanceDue, sale_type, status, notes ?? null]
     );
     const invoiceId = invoiceResult.insertId;
+
+    // Redeem the credit note inside the same transaction
+    if (creditNote && creditDeduction > 0) {
+      await returnSvc.redeemCreditNote(conn, credit_note_number, creditDeduction);
+      // Log as a credit_note payment
+      await conn.execute(
+        `INSERT INTO Invoice_Payments (invoice_id, payment_method, amount, reference_no, received_by)
+         VALUES (?, 'credit', ?, ?, ?)`,
+        [invoiceId, creditDeduction, credit_note_number, actor.user_id]
+      );
+    }
 
     for (const it of invoiceItems) {
       await conn.execute(

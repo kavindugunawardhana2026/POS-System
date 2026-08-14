@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const returnService = require('../services/return.service');
 
@@ -23,18 +23,12 @@ async function create(req, res, next) {
   } catch (err) { next(err); }
 }
 
-async function update(req, res, next) {
+async function validateCredit(req, res, next) {
   try {
-    const item = await returnService.update(req.params.id, req.body, req.user);
-    res.json({ success: true, data: item });
+    const { return_number } = req.params;
+    const credit = await returnService.validateCreditNote(return_number);
+    res.json({ success: true, data: credit });
   } catch (err) { next(err); }
 }
 
-async function remove(req, res, next) {
-  try {
-    await returnService.remove(req.params.id, req.user);
-    res.json({ success: true, message: 'Deleted successfully' });
-  } catch (err) { next(err); }
-}
-
-module.exports = { list, getById, create, update, remove };
+module.exports = { list, getById, create, validateCredit };

@@ -3,6 +3,7 @@ import { useToast } from '@/context/ToastContext'
 import { useAuth } from '@/context/AuthContext'
 import { listProducts } from '@/services/productService'
 import { createInvoice } from '@/services/invoiceService'
+import { validateCredit } from '@/services/returnService'
 import ReceiptPreview from '@/components/Receipt/ReceiptPreview'
 import api from '@/services/api'
 import './POSPage.css'
@@ -162,33 +163,59 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, onSuccess, onClos
   const [saving, setSaving]                   = useState(false)
   const [completedInvoice, setCompletedInvoice] = useState(null)
 
-  const discountAmt = round2(Number(invoiceDiscount) || 0)
-  const finalTotal  = round2(grandTotal - discountAmt)
-  const receivedAmt = Number(received) || 0
-  const change      = round2(Math.max(0, receivedAmt - finalTotal))
-  const balance     = round2(Math.max(0, finalTotal - receivedAmt))
-  const canCharge   = receivedAmt >= finalTotal || paymentMethod !== 'cash'
+  // Credit note
+  const [creditInput, setCreditInput]   = useState('')
+  const [creditNote, setCreditNote]     = useState(null)  // { return_number, credit_remaining }
+  const [creditChecking, setCreditChecking] = useState(false)
+
+  const discountAmt    = round2(Number(invoiceDiscount) || 0)
+  const creditAmt      = creditNote ? round2(Math.min(creditNote.credit_remaining, grandTotal - discountAmt)) : 0
+  const finalTotal     = round2(grandTotal - discountAmt - creditAmt)
+  const receivedAmt    = Number(received) || 0
+  const change         = round2(Math.max(0, receivedAmt - finalTotal))
+  const balance        = round2(Math.max(0, finalTotal - receivedAmt))
+  const canCharge      = receivedAmt >= finalTotal || paymentMethod !== 'cash' || finalTotal <= 0
+
+  const handleApplyCredit = async () => {
+    const rn = creditInput.trim().toUpperCase()
+    if (!rn) return
+    setCreditChecking(true)
+    try {
+      const res = await validateCredit(rn)
+      setCreditNote({ ...res.data.data, return_number: rn })
+      toast.success(`Credit note applied! Available: Rs. ${fmt(res.data.data.credit_remaining)}`)
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Invalid credit note')
+      setCreditNote(null)
+    } finally {
+      setCreditChecking(false)
+    }
+  }
 
   const handleCharge = async () => {
     setSaving(true)
     try {
+      const payments = []
+      if (finalTotal > 0) {
+        payments.push({
+          payment_method: paymentMethod,
+          amount: paymentMethod === 'cash' ? receivedAmt : finalTotal,
+        })
+      }
       const payload = {
         sale_type: saleMode,
-        discount: discountAmt,
+        discount:  discountAmt,
+        credit_note_number: creditNote?.return_number || null,
         items: cart.map(it => ({
           product_id: it.product_id,
           quantity:   it.quantity,
           unit_price: it.unit_price,
           discount:   it.discount,
         })),
-        payments: [{
-          payment_method: paymentMethod,
-          amount: paymentMethod === 'cash' ? receivedAmt : finalTotal,
-        }],
+        payments,
       }
       const res = await createInvoice(payload)
       toast.success(`Invoice ${res.data.data.invoice_number} created!`)
-      // Show receipt — enrich invoice with cashier and cart item units for Kg formatting
       const inv = {
         ...res.data.data,
         cashier: user?.username,
@@ -228,6 +255,35 @@ function CheckoutPanel({ cart, saleMode, grandTotal, shopInfo, onSuccess, onClos
                 onChange={e => setInvoiceDiscount(e.target.value)}
               />
             </div>
+            <div className="pos-summary-row" style={{ marginTop: 8 }}>
+              <label>Credit Note</label>
+              <div style={{ display: 'flex', gap: 6, flex: 1, marginLeft: 16, justifyContent: 'flex-end' }}>
+                <input
+                  className="pos-co-input"
+                  style={{ width: '130px', textAlign: 'left', textTransform: 'uppercase', padding: '4px 8px' }}
+                  placeholder="RET-..."
+                  value={creditInput}
+                  onChange={e => setCreditInput(e.target.value.toUpperCase())}
+                  disabled={!!creditNote || creditChecking}
+                  onKeyDown={e => e.key === 'Enter' && !creditNote && handleApplyCredit()}
+                />
+                {!creditNote ? (
+                  <button className="btn btn-secondary" style={{ padding: '4px 8px', fontSize: '0.8rem' }} onClick={handleApplyCredit} disabled={creditChecking || !creditInput}>
+                    Apply
+                  </button>
+                ) : (
+                  <button className="btn btn-danger" style={{ padding: '4px 8px', fontSize: '0.8rem' }} onClick={() => { setCreditNote(null); setCreditInput('') }}>
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+            {creditNote && (
+              <div className="pos-summary-row" style={{ color: 'var(--success)', fontStyle: 'italic', fontSize: '0.85rem' }}>
+                <span>Credit Applied</span>
+                <span>- Rs. {fmt(creditAmt)}</span>
+              </div>
+            )}
             <div className="pos-summary-row pos-summary-total">
               <span>Total</span>
               <span>Rs. {fmt(finalTotal)}</span>
