@@ -59,8 +59,8 @@ async function listProducts({ page = 1, limit = 20, search, category_id }) {
      LEFT JOIN Categories c ON c.category_id = p.category_id
      ${where}
      ORDER BY p.name ASC
-     LIMIT ? OFFSET ?`,
-    [...params, Number(limit), Number(offset)]
+     LIMIT ${Number(limit)} OFFSET ${Number(offset)}`,
+    params
   );
 
   return { data: rows, meta: { total, page: Number(page), limit: Number(limit), pages: Math.ceil(total / limit) } };

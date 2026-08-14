@@ -26,8 +26,8 @@ async function list({ page = 1, limit = 50, search } = {}) {
     `SELECT COUNT(*) AS total FROM Categories ${where}`, params
   );
   const [rows] = await db.execute(
-    `SELECT * FROM Categories ${where} ORDER BY sort_order ASC, name ASC LIMIT ? OFFSET ?`,
-    [...params, Number(limit), Number(offset)]
+    `SELECT * FROM Categories ${where} ORDER BY sort_order ASC, name ASC LIMIT ${Number(limit)} OFFSET ${Number(offset)}`,
+    params
   );
 
   return {

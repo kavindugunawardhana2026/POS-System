@@ -34,8 +34,8 @@ async function listUsers({ page = 1, limit = 20, role, search } = {}) {
             avatar_url, role, is_active, last_login_at, failed_attempts, locked_until,
             created_at, updated_at,
             CASE WHEN pin_hash IS NOT NULL THEN 1 ELSE 0 END AS has_pin
-     FROM Users ${where} ORDER BY first_name ASC LIMIT ? OFFSET ?`,
-    [...params, Number(limit), Number(offset)]
+     FROM Users ${where} ORDER BY first_name ASC LIMIT ${Number(limit)} OFFSET ${Number(offset)}`,
+    params
   );
 
   return {

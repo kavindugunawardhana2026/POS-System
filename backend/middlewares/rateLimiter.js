@@ -4,7 +4,7 @@ const rateLimit = require('express-rate-limit');
 
 const rateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 500,
+  max: 2000, // generous limit for POS dashboard activity
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Too many requests, please try again later.' },

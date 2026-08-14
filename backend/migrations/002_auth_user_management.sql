@@ -9,8 +9,8 @@ SET NAMES utf8mb4;
 
 -- Add PIN hash to Users (nullable — only cashiers use it)
 ALTER TABLE Users
-  ADD COLUMN IF NOT EXISTS pin_hash    VARCHAR(255) NULL AFTER password_hash,
-  ADD COLUMN IF NOT EXISTS display_name VARCHAR(100) NULL AFTER last_name;
+  ADD COLUMN pin_hash VARCHAR(255) NULL AFTER password_hash,
+  ADD COLUMN display_name VARCHAR(100) NULL AFTER last_name;
 
 -- Default module permissions (all enabled)
 INSERT IGNORE INTO Settings (setting_key, setting_value) VALUES
