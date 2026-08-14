@@ -14,6 +14,7 @@ const reportRoutes   = require('./report.routes');
 const settingRoutes  = require('./setting.routes');
 const shiftRoutes    = require('./shift.routes');
 const expenseRoutes  = require('./expense.routes');
+const dashboardRoutes= require('./dashboard.routes');
 
 const router = Router();
 
@@ -30,5 +31,6 @@ router.use('/reports',   reportRoutes);
 router.use('/settings',  settingRoutes);
 router.use('/shifts',    shiftRoutes);
 router.use('/expenses',  expenseRoutes);
+router.use('/dashboard', dashboardRoutes);
 
 module.exports = router;

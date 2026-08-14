@@ -37,7 +37,29 @@
     "payment_method": "Payment Method",
     "amount_paid": "Amount Paid",
     "change": "Change",
-    "process_sale": "Process Sale"
+    "process_sale": "Process Sale",
+    "hold_order": "Hold Order",
+    "pay": "Pay",
+    "cancel": "Cancel",
+    "print": "Print",
+    "credit_note": "Credit Note",
+    "apply": "Apply",
+    "credit_applied": "Credit Applied"
+  },
+  "receipt": {
+    "invoice": "Invoice",
+    "total": "Total",
+    "cashier": "Cashier",
+    "balance": "Balance",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "item": "Item",
+    "qty": "Qty",
+    "price": "Price",
+    "amount": "Amount",
+    "change": "Change",
+    "paid": "Paid",
+    "date": "Date"
   },
   "common": {
     "save": "Save",

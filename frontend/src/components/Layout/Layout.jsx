@@ -19,9 +19,14 @@ const ALL_NAV = [
 ]
 
 export default function Layout() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { user, logout, canAccess } = useAuth()
   const { theme, toggle } = useTheme()
+
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng)
+    localStorage.setItem('pos_locale', lng)
+  }
 
   const visibleNav = ALL_NAV.filter(item => {
     if (item.adminOnly) return user?.role === 'admin' || user?.role === 'manager'
@@ -65,9 +70,20 @@ export default function Layout() {
               <span className="user-name">{displayName}</span>
               <span className="user-role">{user?.role}</span>
             </div>
-            <button className="theme-toggle" onClick={toggle} title="Toggle theme">
-              {theme === 'dark' ? '☀️' : '🌙'}
-            </button>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <select 
+                className="lang-switcher" 
+                value={i18n.language} 
+                onChange={e => changeLanguage(e.target.value)}
+                title="Change Language"
+              >
+                <option value="en">EN</option>
+                <option value="si">SI</option>
+              </select>
+              <button className="theme-toggle" onClick={toggle} title="Toggle theme">
+                {theme === 'dark' ? '☀️' : '🌙'}
+              </button>
+            </div>
           </div>
           <button className="logout-btn" onClick={logout}>
             🚪 {t('nav.logout')}

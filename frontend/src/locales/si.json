@@ -37,7 +37,29 @@
     "payment_method": "ගෙවීමේ ක්‍රමය",
     "amount_paid": "ගෙවූ මුදල",
     "change": "ඉතිරිය",
-    "process_sale": "විකිණුම සකස් කරන්න"
+    "process_sale": "විකිණුම සකස් කරන්න",
+    "hold_order": "ඇණවුම රඳවා ගන්න",
+    "pay": "ගෙවන්න",
+    "cancel": "අවලංගු කරන්න",
+    "print": "මුද්‍රණය කරන්න",
+    "credit_note": "ණය සටහන",
+    "apply": "යොදන්න",
+    "credit_applied": "ණය යොදන ලදි"
+  },
+  "receipt": {
+    "invoice": "ඉන්වොයිසිය",
+    "total": "එකතුව",
+    "cashier": "අයකැමි",
+    "balance": "ඉතිරිය",
+    "subtotal": "උප එකතුව",
+    "discount": "වට්ටම",
+    "item": "අයිතමය",
+    "qty": "ප්‍රමාණය",
+    "price": "මිල",
+    "amount": "මුදල",
+    "change": "ඉතිරිය",
+    "paid": "ගෙවූ මුදල",
+    "date": "දිනය"
   },
   "common": {
     "save": "සුරකින්න",

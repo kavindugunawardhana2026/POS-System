@@ -52,6 +52,21 @@
 .nav-item.active { background: var(--accent-bg); color: var(--accent); font-weight: 600; }
 .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
 
+.lang-switcher {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 6px;
+  padding: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+.lang-switcher:hover {
+  border-color: var(--accent);
+}
+
 .sidebar-footer {
   padding: 12px;
   border-top: 1px solid var(--border);
