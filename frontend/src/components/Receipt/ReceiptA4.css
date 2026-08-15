@@ -1,86 +1,82 @@
+/* ─── A4 Receipt (Print Component) ──────────────────────────── */
+/* Uses Plus Jakarta Sans to match app font.                     */
+/* White background kept intentionally for clean printing.       */
+
 .a4-receipt {
-  font-family: Arial, sans-serif;
-  color: #333;
+  font-family: 'Plus Jakarta Sans', 'Inter', Arial, sans-serif;
+  color: #1a1a2e;
   width: 210mm;
   min-height: 297mm;
   padding: 20mm;
   background: white;
   box-sizing: border-box;
+  font-size: 14px;
 }
 
 .a4-header {
   display: flex;
   justify-content: space-between;
-  border-bottom: 2px solid #333;
+  border-bottom: 2px solid #1a1a2e;
   padding-bottom: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .a4-shop-info h2 {
-  margin: 0 0 10px 0;
-  font-size: 24px;
+  margin: 0 0 8px 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: #111;
+  letter-spacing: -0.02em;
 }
-.a4-shop-info p {
-  margin: 2px 0;
-  font-size: 14px;
-}
-.a4-tagline {
-  font-style: italic;
-  color: #666;
-}
+.a4-shop-info p { margin: 2px 0; font-size: 13px; color: #444; }
+.a4-tagline { font-style: italic; color: #777; }
 
-.a4-doc-type {
-  text-align: right;
-}
+.a4-doc-type { text-align: right; }
 .a4-doc-type h1 {
-  margin: 0 0 15px 0;
-  font-size: 32px;
+  margin: 0 0 12px 0;
+  font-size: 28px;
   letter-spacing: 2px;
-  color: #444;
+  font-weight: 800;
+  color: #2d2d2d;
 }
-.a4-invoice-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  font-size: 14px;
-}
+.a4-invoice-meta { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #555; }
 
 .a4-customer-info {
-  margin-bottom: 30px;
-  padding: 15px;
-  background: #f9f9f9;
+  margin-bottom: 28px;
+  padding: 14px;
+  background: #f7f8fc;
   border-radius: 8px;
+  border-left: 3px solid #6366f1;
 }
-.a4-customer-info p {
-  margin: 5px 0 0 0;
-  font-size: 16px;
-}
+.a4-customer-info h3 { margin: 0 0 6px 0; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; color: #888; font-weight: 700; }
+.a4-customer-info p  { margin: 4px 0 0 0; font-size: 15px; font-weight: 600; color: #111; }
 
 .a4-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 30px;
-}
-.a4-table th, .a4-table td {
-  border: 1px solid #ddd;
-  padding: 12px;
-  text-align: left;
+  margin-bottom: 28px;
 }
 .a4-table th {
-  background: #f4f4f4;
-  font-weight: bold;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  background: #f0f2f8;
+  border-bottom: 2px solid #dde0ef;
+  color: #555;
 }
-.a4-col-total {
-  text-align: right;
-  font-weight: bold;
+.a4-table td {
+  border: 1px solid #eef0f6;
+  padding: 11px 12px;
+  text-align: left;
+  color: #333;
+  vertical-align: middle;
 }
-.a4-item-name {
-  font-weight: bold;
-}
-.a4-item-sku {
-  font-size: 12px;
-  color: #777;
-}
+.a4-col-total { text-align: right; font-weight: 700; }
+.a4-item-name { font-weight: 700; color: #111; }
+.a4-item-sku  { font-size: 11px; color: #888; }
 
 .a4-footer {
   display: flex;
@@ -88,40 +84,26 @@
   align-items: flex-start;
   margin-top: 40px;
 }
+.a4-footer-left { width: 40%; }
+.a4-footer-note { margin-top: 14px; font-style: italic; color: #888; font-size: 12px; }
 
-.a4-footer-left {
-  width: 40%;
-}
-.a4-footer-note {
-  margin-top: 15px;
-  font-style: italic;
-  color: #666;
-}
-
-.a4-totals {
-  width: 300px;
-}
+.a4-totals { width: 280px; }
 .a4-total-row {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
+  padding: 7px 0;
+  font-size: 14px;
   border-bottom: 1px solid #eee;
+  color: #444;
 }
 .a4-grand-total {
-  font-size: 18px;
-  font-weight: bold;
-  border-bottom: 2px solid #333;
-  margin-top: 5px;
-  padding-bottom: 10px;
+  font-size: 17px;
+  font-weight: 800;
+  border-bottom: 2px solid #1a1a2e;
+  margin-top: 4px;
+  padding: 10px 0;
+  color: #111;
 }
-.a4-payments {
-  margin-top: 10px;
-}
-.a4-payment-row {
-  font-size: 14px;
-  color: #555;
-}
-.a4-balance {
-  font-weight: bold;
-  color: #d32f2f;
-}
+.a4-payments { margin-top: 10px; }
+.a4-payment-row { font-size: 13px; color: #666; display: flex; justify-content: space-between; padding: 4px 0; }
+.a4-balance { font-weight: 700; color: #dc2626; }

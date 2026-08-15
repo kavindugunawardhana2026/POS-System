@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { useToast } from '@/context/ToastContext'
+import { Store, Hash, Lock, UserX } from 'lucide-react'
 import api from '@/services/api'
 import './LoginPage.css'
 
@@ -134,8 +135,9 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
-      {/* Animated background blobs */}
+      {/* Gradient mesh background */}
       <div className="login-bg">
+        <div className="login-mesh" />
         <div className="blob blob-1" />
         <div className="blob blob-2" />
         <div className="blob blob-3" />
@@ -144,8 +146,8 @@ export default function LoginPage() {
       <div className="login-card">
         {/* Logo */}
         <div className="login-logo">
-          <div className="login-logo-icon">🏪</div>
-          <h1 className="login-logo-title">POS System</h1>
+          <div className="login-logo-icon"><Store size={30} strokeWidth={1.8} /></div>
+          <h1 className="login-logo-title">ROVTAD POS</h1>
           <p className="login-logo-sub">{t('auth.welcome_back', 'Welcome back')}</p>
         </div>
 
@@ -155,13 +157,13 @@ export default function LoginPage() {
             className={`login-tab ${mode === 'pin' ? 'active' : ''}`}
             onClick={() => setMode('pin')}
           >
-            🔢 {t('auth.cashier_pin', 'Cashier PIN')}
+            <Hash size={15} /> {t('auth.cashier_pin', 'Cashier PIN')}
           </button>
           <button
             className={`login-tab ${mode === 'password' ? 'active' : ''}`}
             onClick={() => setMode('password')}
           >
-            🔐 {t('auth.admin_login', 'Admin Login')}
+            <Lock size={15} /> {t('auth.admin_login', 'Admin Login')}
           </button>
         </div>
 
@@ -170,7 +172,7 @@ export default function LoginPage() {
           <div className="pin-mode">
             {cashiers.length === 0 ? (
               <div className="no-cashiers">
-                <span>👤</span>
+                <div className="no-cashiers-icon"><UserX size={24} /></div>
                 <p>{t('auth.no_cashiers', 'No cashiers with PIN configured.')}</p>
                 <button className="btn btn-secondary" onClick={() => setMode('password')}>
                   {t('auth.use_admin_login', 'Use Admin Login')}

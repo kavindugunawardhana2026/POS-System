@@ -3,18 +3,20 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useToast } from '@/context/ToastContext'
 import { listInvoices, cancelInvoice } from '@/services/invoiceService'
+import { Eye, XCircle } from 'lucide-react'
+import './InvoicesPage.css'
 
 const fmt = (n) => Number(n || 0).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 const STATUS_BADGE = {
-  paid:                'badge-success',
-  partial:             'badge-warning',
-  unpaid:              'badge-danger',
-  draft:               'badge-neutral',
-  cancelled:           'badge-neutral',
-  void:                'badge-neutral',
-  refunded:            'badge-info',
-  partially_refunded:  'badge-info',
+  paid:               'badge-success',
+  partial:            'badge-warning',
+  unpaid:             'badge-danger',
+  draft:              'badge-neutral',
+  cancelled:          'badge-neutral',
+  void:               'badge-neutral',
+  refunded:           'badge-accent',
+  partially_refunded: 'badge-accent',
 }
 
 const STATUSES = ['all', 'paid', 'partial', 'unpaid', 'cancelled', 'void']
@@ -65,110 +67,117 @@ export default function InvoicesPage() {
   }
 
   return (
-    <div className="users-page">
+    <div className="invoices-page page-root">
       <div className="page-header">
         <div>
           <h1 className="page-title">Invoices</h1>
-          <p className="page-subtitle">{meta.total || 0} invoices</p>
+          <p className="page-subtitle">{meta.total || 0} invoices total</p>
         </div>
       </div>
 
       {/* Toolbar */}
-      <div className="users-toolbar" style={{ flexWrap: 'wrap', gap: 8 }}>
+      <div className="invoices-toolbar">
         {STATUSES.map(s => (
           <button
             key={s}
-            className={`btn ${status === s ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '4px 12px', fontSize: '0.85rem', textTransform: 'capitalize' }}
+            className={`btn ${status === s ? 'btn-primary' : 'btn-secondary'} btn-sm`}
             onClick={() => setStatus(s)}
           >
             {s}
           </button>
         ))}
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginLeft: 'auto' }}>
-          <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>From:</label>
-          <input className="input" type="date" value={from} onChange={e => setFrom(e.target.value)} style={{ width: 145 }} />
-          <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>To:</label>
-          <input className="input" type="date" value={to} onChange={e => setTo(e.target.value)} style={{ width: 145 }} />
-          {(from || to) && <button className="btn btn-secondary" onClick={() => { setFrom(''); setTo('') }}>Clear</button>}
+        <div className="invoices-date-range">
+          <span className="invoices-date-label">From:</span>
+          <input className="invoices-date-input" type="date" value={from} onChange={e => setFrom(e.target.value)} />
+          <span className="invoices-date-label">To:</span>
+          <input className="invoices-date-input" type="date" value={to} onChange={e => setTo(e.target.value)} />
+          {(from || to) && (
+            <button className="btn btn-secondary btn-sm" onClick={() => { setFrom(''); setTo('') }}>Clear</button>
+          )}
         </div>
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="card table-card">
         {loading ? (
           <div className="table-loading"><div className="spinner" /></div>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Invoice #</th>
-                <th>Date</th>
-                <th>Customer</th>
-                <th>Cashier</th>
-                <th>Type</th>
-                <th style={{ textAlign: 'right' }}>Total</th>
-                <th style={{ textAlign: 'right' }}>Paid</th>
-                <th style={{ textAlign: 'right' }}>Balance</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoices.length === 0 && (
-                <tr><td colSpan={10} style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: 32 }}>No invoices found</td></tr>
-              )}
-              {invoices.map(inv => (
-                <tr
-                  key={inv.invoice_id}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => navigate(`/invoices/${inv.invoice_id}`)}
-                  className="table-row-hover"
-                >
-                  <td><strong style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>{inv.invoice_number}</strong></td>
-                  <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    {new Date(inv.created_at).toLocaleDateString()}
-                    <br />
-                    <span style={{ fontSize: '0.75rem' }}>{new Date(inv.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                  </td>
-                  <td>{inv.customer_name || <span style={{ color: 'var(--text-secondary)' }}>Walk-in</span>}</td>
-                  <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{inv.cashier}</td>
-                  <td>
-                    <span className={`badge ${inv.sale_type === 'wholesale' ? 'badge-info' : 'badge-neutral'}`} style={{ fontSize: '0.75rem' }}>
-                      {inv.sale_type}
-                    </span>
-                  </td>
-                  <td style={{ textAlign: 'right', fontWeight: 600 }}>Rs. {fmt(inv.total_amount)}</td>
-                  <td style={{ textAlign: 'right' }}>Rs. {fmt(inv.paid_amount)}</td>
-                  <td style={{ textAlign: 'right', color: inv.balance_due > 0 ? 'var(--danger)' : 'inherit' }}>
-                    {inv.balance_due > 0 ? `Rs. ${fmt(inv.balance_due)}` : '—'}
-                  </td>
-                  <td>
-                    <span className={`badge ${STATUS_BADGE[inv.status] || 'badge-neutral'}`} style={{ textTransform: 'capitalize' }}>
-                      {inv.status.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td onClick={e => e.stopPropagation()}>
-                    <div className="action-btns">
-                      <button className="btn-icon" title="View" onClick={() => navigate(`/invoices/${inv.invoice_id}`)}>👁️</button>
-                      {me?.role === 'admin' && !['cancelled', 'void', 'refunded'].includes(inv.status) && (
-                        <button className="btn-icon btn-icon-danger" title="Cancel" onClick={e => handleCancel(e, inv)}>❌</button>
-                      )}
-                    </div>
-                  </td>
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Invoice #</th>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Cashier</th>
+                  <th>Type</th>
+                  <th className="num">Total</th>
+                  <th className="num">Paid</th>
+                  <th className="num">Balance</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {invoices.length === 0 && (
+                  <tr><td colSpan={10} className="table-empty" style={{ padding: 32 }}>No invoices found</td></tr>
+                )}
+                {invoices.map(inv => (
+                  <tr
+                    key={inv.invoice_id}
+                    className="invoice-row table-row-hover"
+                    onClick={() => navigate(`/invoices/${inv.invoice_id}`)}
+                  >
+                    <td><span className="invoice-number">{inv.invoice_number}</span></td>
+                    <td>
+                      <div className="invoice-date-primary">{new Date(inv.created_at).toLocaleDateString()}</div>
+                      <div className="invoice-date-secondary">{new Date(inv.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                    </td>
+                    <td>{inv.customer_name || <span className="walk-in-text">Walk-in</span>}</td>
+                    <td><span className="cashier-cell">{inv.cashier}</span></td>
+                    <td>
+                      <span className={`badge ${inv.sale_type === 'wholesale' ? 'badge-accent' : 'badge-neutral'}`}>
+                        {inv.sale_type}
+                      </span>
+                    </td>
+                    <td className="num amount-total">Rs. {fmt(inv.total_amount)}</td>
+                    <td className="num">Rs. {fmt(inv.paid_amount)}</td>
+                    <td className="num">
+                      {inv.balance_due > 0
+                        ? <span className="balance-due">Rs. {fmt(inv.balance_due)}</span>
+                        : <span className="balance-none">—</span>}
+                    </td>
+                    <td>
+                      <span className={`badge ${STATUS_BADGE[inv.status] || 'badge-neutral'}`}>
+                        {inv.status.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td onClick={e => e.stopPropagation()}>
+                      <div className="action-btns">
+                        <button className="btn-icon" title="View" onClick={() => navigate(`/invoices/${inv.invoice_id}`)}>
+                          <Eye size={15} />
+                        </button>
+                        {me?.role === 'admin' && !['cancelled', 'void', 'refunded'].includes(inv.status) && (
+                          <button className="btn-icon btn-icon-danger" title="Cancel" onClick={e => handleCancel(e, inv)}>
+                            <XCircle size={15} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {meta.pages > 1 && (
+          <div className="pagination">
+            <button className="btn btn-secondary btn-sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Prev</button>
+            <span className="pagination-info">Page {page} of {meta.pages}</span>
+            <button className="btn btn-secondary btn-sm" disabled={page >= meta.pages} onClick={() => setPage(p => p + 1)}>Next →</button>
+          </div>
         )}
       </div>
-
-      {meta.pages > 1 && (
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 16 }}>
-          <button className="btn btn-secondary" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Prev</button>
-          <span style={{ lineHeight: '2rem' }}>Page {page} of {meta.pages}</span>
-          <button className="btn btn-secondary" disabled={page >= meta.pages} onClick={() => setPage(p => p + 1)}>Next →</button>
-        </div>
-      )}
     </div>
   )
 }

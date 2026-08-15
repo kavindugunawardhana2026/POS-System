@@ -4,6 +4,8 @@ import { useToast } from '@/context/ToastContext'
 import { listPurchases, createPurchase, deletePurchase } from '@/services/purchaseService'
 import { listSuppliers } from '@/services/supplierService'
 import { listProducts } from '@/services/productService'
+import { Eye, Undo2, ShoppingBag } from 'lucide-react'
+import './PurchasesPage.css'
 
 const fmt = (n) => Number(n || 0).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100
@@ -93,9 +95,9 @@ function NewPurchaseModal({ onClose, onSaved }) {
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal" style={{ maxWidth: 800, width: '95vw' }} onClick={e => e.stopPropagation()}>
+      <div className="modal modal-lg" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>📥 New Purchase</h2>
+          <h2><ShoppingBag size={18} style={{ marginRight: 8 }} />New Purchase</h2>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
         <form onSubmit={handleSubmit} className="modal-body">
@@ -119,25 +121,24 @@ function NewPurchaseModal({ onClose, onSaved }) {
           </div>
 
           {/* Items */}
-          <div style={{ margin: '1rem 0 0.5rem', fontWeight: 600 }}>Items</div>
-          <div style={{ border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead style={{ background: 'var(--bg-secondary)' }}>
+          <div style={{ margin: '0.5rem 0', fontWeight: 700, fontSize: '0.95rem' }}>Items</div>
+          <div className="purchase-items-table-wrap">
+            <table className="table">
+              <thead>
                 <tr>
-                  <th style={{ padding: '8px 12px', textAlign: 'left' }}>Product</th>
-                  <th style={{ padding: '8px 12px', textAlign: 'center', width: 100 }}>Qty</th>
-                  <th style={{ padding: '8px 12px', textAlign: 'center', width: 130 }}>Unit Cost (Rs.)</th>
-                  <th style={{ padding: '8px 12px', textAlign: 'right', width: 120 }}>Subtotal</th>
+                  <th>Product</th>
+                  <th style={{ width: 100 }}>Qty</th>
+                  <th style={{ width: 140 }}>Unit Cost (Rs.)</th>
+                  <th className="num" style={{ width: 120 }}>Subtotal</th>
                   <th style={{ width: 40 }}></th>
                 </tr>
               </thead>
               <tbody>
                 {items.map((it, idx) => (
-                  <tr key={idx} style={{ borderTop: '1px solid var(--border)' }}>
+                  <tr key={idx}>
                     <td style={{ padding: '6px 8px', position: 'relative' }}>
                       <input
                         className="input"
-                        style={{ fontSize: '0.9rem' }}
                         placeholder="Search product…"
                         value={focusedRow === idx ? productSearch : it.product_name}
                         onChange={e => {
@@ -147,9 +148,9 @@ function NewPurchaseModal({ onClose, onSaved }) {
                         onFocus={() => { setFocusedRow(idx); setProductSearch(it.product_name) }}
                       />
                       {focusedRow === idx && productResults.length > 0 && (
-                        <div style={{ position: 'absolute', top: '100%', left: 8, right: 0, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 6, zIndex: 50, maxHeight: 180, overflowY: 'auto', boxShadow: 'var(--shadow-lg)' }}>
+                        <div className="product-dropdown">
                           {productResults.map(p => (
-                            <div key={p.product_id} style={{ padding: '8px 12px', cursor: 'pointer', fontSize: '0.9rem' }}
+                            <div key={p.product_id} className="product-dropdown-item"
                               onMouseDown={() => selectProduct(idx, p)}>
                               <strong>{p.name}</strong>
                               <span style={{ color: 'var(--text-secondary)', marginLeft: 8 }}>{p.sku} • Stock: {p.stock_quantity}</span>
@@ -191,9 +192,9 @@ function NewPurchaseModal({ onClose, onSaved }) {
             </table>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-            <button type="button" className="btn btn-secondary" onClick={addRow}>+ Add Item</button>
-            <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>Total: Rs. {fmt(grandTotal)}</div>
+          <div className="purchase-total-row">
+            <button type="button" className="btn btn-secondary btn-sm" onClick={addRow}>+ Add Item</button>
+            <div className="purchase-grand-total">Total: Rs. {fmt(grandTotal)}</div>
           </div>
 
           <div className="form-group" style={{ marginTop: '0.5rem' }}>
@@ -204,7 +205,7 @@ function NewPurchaseModal({ onClose, onSaved }) {
           <div className="modal-footer">
             <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Recording...' : `✅ Record Purchase (Rs. ${fmt(grandTotal)})`}
+              {loading ? 'Recording...' : `Record Purchase — Rs. ${fmt(grandTotal)}`}
             </button>
           </div>
         </form>
@@ -330,27 +331,25 @@ export default function PurchasesPage() {
   const onSaved = () => { setShowNew(false); fetchPurchases() }
 
   return (
-    <div className="users-page">
+    <div className="purchases-page page-root">
       <div className="page-header">
         <div>
           <h1 className="page-title">Purchases</h1>
           <p className="page-subtitle">{meta.total || 0} records</p>
         </div>
         {isAdmin && (
-          <button className="btn btn-primary" onClick={() => setShowNew(true)}>
-            + New Purchase
-          </button>
+          <button className="btn btn-primary" onClick={() => setShowNew(true)}>+ New Purchase</button>
         )}
       </div>
 
-      <div className="users-toolbar">
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>From:</label>
-          <input className="input" type="date" value={from} onChange={e => setFrom(e.target.value)} style={{ width: 145 }} />
-          <label style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>To:</label>
-          <input className="input" type="date" value={to} onChange={e => setTo(e.target.value)} style={{ width: 145 }} />
+      <div className="invoices-toolbar">
+        <div className="invoices-date-range">
+          <span className="invoices-date-label">From:</span>
+          <input className="invoices-date-input" type="date" value={from} onChange={e => setFrom(e.target.value)} />
+          <span className="invoices-date-label">To:</span>
+          <input className="invoices-date-input" type="date" value={to} onChange={e => setTo(e.target.value)} />
           {(from || to) && (
-            <button className="btn btn-secondary" onClick={() => { setFrom(''); setTo('') }}>Clear</button>
+            <button className="btn btn-secondary btn-sm" onClick={() => { setFrom(''); setTo('') }}>Clear</button>
           )}
         </div>
       </div>
@@ -387,9 +386,9 @@ export default function PurchasesPage() {
                   <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{p.created_by}</td>
                   <td>
                     <div className="action-btns">
-                      <button className="btn-icon" title="View Details" onClick={() => setViewId(p.purchase_id)}>👁️</button>
+                      <button className="btn-icon" title="View Details" onClick={() => setViewId(p.purchase_id)}><Eye size={14} /></button>
                       {me?.role === 'admin' && (
-                        <button className="btn-icon btn-icon-danger" title="Reverse Purchase" onClick={() => handleDelete(p)}>↩️</button>
+                        <button className="btn-icon btn-icon-danger" title="Reverse Purchase" onClick={() => handleDelete(p)}><Undo2 size={14} /></button>
                       )}
                     </div>
                   </td>
@@ -401,10 +400,10 @@ export default function PurchasesPage() {
       </div>
 
       {meta.pages > 1 && (
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 16 }}>
-          <button className="btn btn-secondary" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Prev</button>
-          <span style={{ lineHeight: '2rem' }}>Page {page} of {meta.pages}</span>
-          <button className="btn btn-secondary" disabled={page >= meta.pages} onClick={() => setPage(p => p + 1)}>Next →</button>
+        <div className="pagination" style={{ borderTop: 'none', paddingTop: 0 }}>
+          <button className="btn btn-secondary btn-sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Prev</button>
+          <span className="pagination-info">Page {page} of {meta.pages}</span>
+          <button className="btn btn-secondary btn-sm" disabled={page >= meta.pages} onClick={() => setPage(p => p + 1)}>Next →</button>
         </div>
       )}
 

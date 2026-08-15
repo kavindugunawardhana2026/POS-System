@@ -1,0 +1,26 @@
+/* ─── Customers Page ─────────────────────────────────────────── */
+.customers-page { display: flex; flex-direction: column; gap: 18px; }
+
+/* ─── Loyalty Points Badge ───────────────────────────────────── */
+.loyalty-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.08));
+  color: var(--warning);
+  border: 1px solid rgba(245,158,11,0.2);
+}
+.loyalty-zero { color: var(--text-tertiary); }
+
+/* ─── Invoice Count ──────────────────────────────────────────── */
+.invoice-count {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* ─── Join Date ──────────────────────────────────────────────── */
+.join-date { color: var(--text-secondary); font-size: 0.8rem; }

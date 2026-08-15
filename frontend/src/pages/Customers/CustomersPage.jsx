@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { useToast } from '@/context/ToastContext'
 import { listCustomers, createCustomer, updateCustomer, deleteCustomer } from '@/services/customerService'
+import { Pencil, Trash2 } from 'lucide-react'
+import './CustomersPage.css'
 
 // ─── Customer Modal ───────────────────────────────────────────
 function CustomerModal({ customer, onClose, onSaved }) {
@@ -147,7 +149,7 @@ export default function CustomersPage() {
   const fmt = (n) => Number(n || 0).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   return (
-    <div className="users-page">
+    <div className="customers-page page-root">
       <div className="page-header">
         <div>
           <h1 className="page-title">Customers</h1>
@@ -161,7 +163,7 @@ export default function CustomersPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="users-toolbar">
+      <div className="toolbar">
         <input
           className="input"
           placeholder="Search by name, phone, email…"
@@ -214,15 +216,13 @@ export default function CustomersPage() {
                     }
                   </td>
                   <td>{c.invoice_count}</td>
-                  <td style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
-                    {new Date(c.created_at).toLocaleDateString()}
-                  </td>
+                  <td><span className="join-date">{new Date(c.created_at).toLocaleDateString()}</span></td>
                   <td>
                     <div className="action-btns">
                       {isAdmin && (
                         <>
-                          <button className="btn-icon" title="Edit" onClick={() => setModal({ data: c })}>✏️</button>
-                          <button className="btn-icon btn-icon-danger" title="Delete" onClick={() => handleDelete(c)}>🗑️</button>
+                          <button className="btn-icon" title="Edit" onClick={() => setModal({ data: c })}><Pencil size={14} /></button>
+                          <button className="btn-icon btn-icon-danger" title="Delete" onClick={() => handleDelete(c)}><Trash2 size={14} /></button>
                         </>
                       )}
                     </div>
@@ -236,10 +236,10 @@ export default function CustomersPage() {
 
       {/* Pagination */}
       {meta.pages > 1 && (
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 16 }}>
-          <button className="btn btn-secondary" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Prev</button>
-          <span style={{ lineHeight: '2rem' }}>Page {page} of {meta.pages}</span>
-          <button className="btn btn-secondary" disabled={page >= meta.pages} onClick={() => setPage(p => p + 1)}>Next →</button>
+        <div className="pagination" style={{ borderTop: 'none', paddingTop: 0 }}>
+          <button className="btn btn-secondary btn-sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Prev</button>
+          <span className="pagination-info">Page {page} of {meta.pages}</span>
+          <button className="btn btn-secondary btn-sm" disabled={page >= meta.pages} onClick={() => setPage(p => p + 1)}>Next →</button>
         </div>
       )}
 

@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { useToast } from '@/context/ToastContext'
 import { listSuppliers, createSupplier, updateSupplier, deleteSupplier } from '@/services/supplierService'
+import { Pencil, Trash2, Power, Truck } from 'lucide-react'
+import './SuppliersPage.css'
 
 // ─── Supplier Modal ───────────────────────────────────────────
 function SupplierModal({ supplier, onClose, onSaved }) {
@@ -147,7 +149,7 @@ export default function SuppliersPage() {
   const onSaved = () => { setModal(null); fetchSuppliers() }
 
   return (
-    <div className="users-page">
+    <div className="suppliers-page page-root">
       <div className="page-header">
         <div>
           <h1 className="page-title">Suppliers</h1>
@@ -160,7 +162,7 @@ export default function SuppliersPage() {
         )}
       </div>
 
-      <div className="users-toolbar">
+      <div className="toolbar">
         <input
           className="input"
           placeholder="Search by name, contact, phone, email…"
@@ -175,12 +177,13 @@ export default function SuppliersPage() {
         </select>
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="card table-card">
         {loading ? (
           <div className="table-loading"><div className="spinner" /></div>
         ) : (
-          <table className="table">
-            <thead>
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
               <tr>
                 <th>Supplier</th>
                 <th>Contact</th>
@@ -199,13 +202,13 @@ export default function SuppliersPage() {
                 <tr key={s.supplier_id} className={!s.is_active ? 'row-inactive' : ''}>
                   <td>
                     <div className="user-cell">
-                      <div className="user-avatar-sm" style={{ background: 'var(--accent)' }}>🏭</div>
+                        <div className="user-avatar-sm"><Truck size={14} /></div>
                       <div className="user-cell-name">{s.name}</div>
                     </div>
                   </td>
-                  <td style={{ color: 'var(--text-secondary)' }}>{s.contact_person || '—'}</td>
-                  <td style={{ color: 'var(--text-secondary)' }}>{s.phone || '—'}</td>
-                  <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{s.email || '—'}</td>
+                  <td className="cashier-cell">{s.contact_person || '—'}</td>
+                  <td className="cashier-cell">{s.phone || '—'}</td>
+                  <td className="cashier-cell">{s.email || '—'}</td>
                   <td>{s.purchase_count}</td>
                   <td>
                     <span className={`badge ${s.is_active ? 'badge-success' : 'badge-warning'}`}>
@@ -216,14 +219,12 @@ export default function SuppliersPage() {
                     <div className="action-btns">
                       {isAdmin && (
                         <>
-                          <button className="btn-icon" title="Edit" onClick={() => setModal({ data: s })}>✏️</button>
-                          <button
-                            className="btn-icon"
-                            title={s.is_active ? 'Deactivate' : 'Activate'}
-                            onClick={() => handleToggleActive(s)}
-                          >{s.is_active ? '🔴' : '🟢'}</button>
+                          <button className="btn-icon" title="Edit" onClick={() => setModal({ data: s })}><Pencil size={14} /></button>
+                          <button className="btn-icon" title={s.is_active ? 'Deactivate' : 'Activate'} onClick={() => handleToggleActive(s)}>
+                            <Power size={14} color={s.is_active ? 'var(--danger)' : 'var(--success)'} />
+                          </button>
                           {s.purchase_count === 0 && (
-                            <button className="btn-icon btn-icon-danger" title="Delete" onClick={() => handleDelete(s)}>🗑️</button>
+                            <button className="btn-icon btn-icon-danger" title="Delete" onClick={() => handleDelete(s)}><Trash2 size={14} /></button>
                           )}
                         </>
                       )}
@@ -232,15 +233,16 @@ export default function SuppliersPage() {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
         )}
       </div>
 
       {meta.pages > 1 && (
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 16 }}>
-          <button className="btn btn-secondary" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Prev</button>
-          <span style={{ lineHeight: '2rem' }}>Page {page} of {meta.pages}</span>
-          <button className="btn btn-secondary" disabled={page >= meta.pages} onClick={() => setPage(p => p + 1)}>Next →</button>
+        <div className="pagination" style={{ borderTop: 'none', paddingTop: 0 }}>
+          <button className="btn btn-secondary btn-sm" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Prev</button>
+          <span className="pagination-info">Page {page} of {meta.pages}</span>
+          <button className="btn btn-secondary btn-sm" disabled={page >= meta.pages} onClick={() => setPage(p => p + 1)}>Next →</button>
         </div>
       )}
 

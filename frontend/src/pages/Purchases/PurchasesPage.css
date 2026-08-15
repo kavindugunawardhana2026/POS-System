@@ -1,0 +1,57 @@
+/* ─── Purchases Page ─────────────────────────────────────────── */
+.purchases-page { display: flex; flex-direction: column; gap: 18px; }
+
+/* ─── Purchase Items dropdown ────────────────────────────────── */
+.product-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  z-index: 50;
+  max-height: 180px;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(12px);
+}
+.product-dropdown-item {
+  padding: 9px 13px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background var(--transition);
+}
+.product-dropdown-item:hover { background: var(--hover-bg); }
+
+/* ─── Purchase Items Table ───────────────────────────────────── */
+.purchase-items-table-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.purchase-items-table-wrap .table th {
+  background: var(--bg-secondary);
+}
+.purchase-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+.purchase-grand-total {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Purchase Detail Meta ───────────────────────────────────── */
+.purchase-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 24px;
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+}
+.purchase-meta-label { color: var(--text-secondary); }
+.purchase-meta-value { font-weight: 600; }

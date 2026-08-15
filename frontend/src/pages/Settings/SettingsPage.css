@@ -1,12 +1,14 @@
-.settings-page { display: flex; flex-direction: column; gap: 24px; }
-.page-subtitle { color: var(--text-secondary); font-size: 0.875rem; margin-top: 2px; }
+.settings-page { display: flex; flex-direction: column; gap: 24px; animation: fade-up 0.3s ease both; }
 
-/* Section */
+/* ─── Section card ───────────────────────────────────────────── */
 .settings-section {
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow);
 }
 .settings-section-header {
   display: flex;
@@ -15,12 +17,13 @@
   gap: 16px;
   padding: 20px 24px;
   border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--accent-bg), transparent);
 }
 .settings-section-header h2 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
-.settings-section-header p { font-size: 0.82rem; color: var(--text-secondary); max-width: 480px; }
+.settings-section-header p  { font-size: 0.82rem; color: var(--text-secondary); max-width: 480px; }
 .bulk-actions { display: flex; gap: 8px; flex-shrink: 0; }
 
-/* Module grid */
+/* ─── Module grid ────────────────────────────────────────────── */
 .module-grid { padding: 16px; display: flex; flex-direction: column; gap: 8px; }
 
 .module-card {
@@ -29,18 +32,19 @@
   gap: 14px;
   padding: 14px 16px;
   border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--bg-primary);
-  transition: all 0.2s ease;
+  border-radius: var(--radius-sm);
+  background: var(--bg-tertiary);
+  transition: all var(--transition);
 }
-.module-card.enabled { border-color: var(--accent); background: var(--accent-bg); }
-.module-card.disabled { opacity: 0.65; }
-.module-card.module-admin-only {
-  border-style: dashed;
-  opacity: 0.6;
+.module-card.enabled {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  box-shadow: 0 0 0 1px rgba(99,102,241,0.1);
 }
+.module-card.disabled { opacity: 0.5; }
+.module-card.module-admin-only { border-style: dashed; opacity: 0.55; }
 
-.module-icon { font-size: 1.4rem; width: 32px; text-align: center; }
+.module-icon { font-size: 1.3rem; width: 32px; text-align: center; }
 .module-info { flex: 1; }
 .module-name { font-size: 0.9rem; font-weight: 600; }
 .module-desc { font-size: 0.77rem; color: var(--text-secondary); margin-top: 2px; }
@@ -55,19 +59,19 @@
   font-weight: 600;
 }
 
-/* Toggle switch */
+/* ─── Toggle switch ──────────────────────────────────────────── */
 .toggle-switch {
   width: 44px; height: 24px;
   border-radius: 12px;
   border: none;
   cursor: pointer;
   position: relative;
-  transition: background 0.2s ease;
+  transition: background var(--transition);
   flex-shrink: 0;
   padding: 0;
 }
-.toggle-switch.on  { background: var(--accent); }
-.toggle-switch.off { background: var(--border); }
+.toggle-switch.on  { background: linear-gradient(135deg, #6366f1, #8b5cf6); box-shadow: 0 2px 8px rgba(99,102,241,0.4); }
+.toggle-switch.off { background: var(--border-strong); }
 .toggle-switch.disabled { cursor: not-allowed; opacity: 0.5; }
 
 .toggle-thumb {
@@ -77,19 +81,20 @@
   background: #fff;
   position: absolute;
   top: 3px;
-  transition: left 0.2s ease;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  transition: left var(--transition);
+  box-shadow: 0 1px 5px rgba(0,0,0,0.3);
 }
 .toggle-switch.on  .toggle-thumb { left: 23px; }
 .toggle-switch.off .toggle-thumb { left: 3px; }
 
-/* Info card */
+/* ─── Info card ──────────────────────────────────────────────── */
 .settings-info-card {
   display: flex; align-items: flex-start; gap: 12px;
   padding: 14px 18px;
   background: var(--accent-bg);
-  border: 1px solid var(--accent);
-  border-radius: 10px;
+  border: 1px solid rgba(99,102,241,0.3);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--accent);
   font-size: 0.82rem;
   color: var(--text-secondary);
 }

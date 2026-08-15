@@ -2,10 +2,28 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getMetrics, getSalesTrend, getLowStock, getRecentTransactions } from '@/services/dashboardService'
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell
 } from 'recharts'
 import { TrendingUp, ShoppingCart, RotateCcw, Users, AlertTriangle, Clock } from 'lucide-react'
 import './DashboardPage.css'
+
+function LiveClock() {
+  const [now, setNow] = useState(new Date())
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(id)
+  }, [])
+  return (
+    <div className="dash-clock">
+      <div className="dash-clock-time">
+        {now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+      </div>
+      <div className="dash-clock-date">
+        {now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+      </div>
+    </div>
+  )
+}
 
 export default function DashboardPage() {
   const { t } = useTranslation()
@@ -42,7 +60,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="dash-loading">
-        <div className="spinner"></div>
+        <div className="spinner" />
         <p>{t('dashboard.loading', 'Loading Dashboard...')}</p>
       </div>
     )
@@ -50,36 +68,40 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard-root">
+      {/* Header */}
       <div className="dash-header">
-        <h1>{t('dashboard.title', 'Dashboard Overview')}</h1>
-        <p>{t('dashboard.subtitle', "Real-time updates on your store's performance today")}</p>
+        <div className="dash-header-left">
+          <h1>{t('dashboard.title', 'Dashboard Overview')}</h1>
+          <p>{t('dashboard.subtitle', "Real-time updates on your store's performance today")}</p>
+        </div>
+        <LiveClock />
       </div>
 
-      {/* ── Key Metrics Grid ── */}
+      {/* ── Key Metrics ── */}
       <div className="dash-metrics-grid">
         <div className="dash-metric-card">
-          <div className="dmc-icon bg-blue"><TrendingUp size={24} /></div>
+          <div className="dmc-icon bg-blue"><TrendingUp size={22} /></div>
           <div className="dmc-info">
             <span className="dmc-label">{t('dashboard.today_sales', "Today's Sales")}</span>
             <span className="dmc-val">Rs. {fmt(metrics.todaySales)}</span>
           </div>
         </div>
         <div className="dash-metric-card">
-          <div className="dmc-icon bg-green"><ShoppingCart size={24} /></div>
+          <div className="dmc-icon bg-green"><ShoppingCart size={22} /></div>
           <div className="dmc-info">
             <span className="dmc-label">{t('dashboard.orders_today', 'Orders Today')}</span>
             <span className="dmc-val">{metrics.todayOrders}</span>
           </div>
         </div>
         <div className="dash-metric-card">
-          <div className="dmc-icon bg-orange"><RotateCcw size={24} /></div>
+          <div className="dmc-icon bg-orange"><RotateCcw size={22} /></div>
           <div className="dmc-info">
             <span className="dmc-label">{t('dashboard.returns_today', 'Returns Today')}</span>
             <span className="dmc-val">{metrics.todayReturns}</span>
           </div>
         </div>
         <div className="dash-metric-card">
-          <div className="dmc-icon bg-purple"><Users size={24} /></div>
+          <div className="dmc-icon bg-purple"><Users size={22} /></div>
           <div className="dmc-info">
             <span className="dmc-label">{t('dashboard.total_customers', 'Total Customers')}</span>
             <span className="dmc-val">{metrics.totalCustomers}</span>
@@ -87,54 +109,63 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* ── Main Grid ── */}
       <div className="dash-main-grid">
-        {/* ── Sales Trend Chart ── */}
+        {/* Sales Trend Chart */}
         <div className="dash-card dash-chart-card">
           <div className="dash-card-header">
-            <h3>{t('dashboard.revenue_7_days', 'Revenue (Last 7 Days)')}</h3>
+            <h3><TrendingUp size={16} /> {t('dashboard.revenue_7_days', 'Revenue (Last 7 Days)')}</h3>
           </div>
           <div className="dash-chart-container">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={salesTrend}>
+              <BarChart data={salesTrend} barSize={36}>
+                <defs>
+                  <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#6366f1" stopOpacity={1} />
+                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.7} />
+                  </linearGradient>
+                </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
-                <XAxis 
-                  dataKey="date" 
-                  tickFormatter={tick => tick.substring(5)} 
-                  axisLine={false} 
-                  tickLine={false} 
-                  stroke="var(--text-secondary)" 
-                  fontSize={12} 
-                  dy={10} 
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={tick => tick.substring(5)}
+                  axisLine={false}
+                  tickLine={false}
+                  stroke="var(--text-secondary)"
+                  fontSize={12}
+                  dy={10}
                 />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  stroke="var(--text-secondary)" 
-                  fontSize={12} 
-                  dx={-10} 
-                  tickFormatter={tick => `Rs.${tick / 1000}k`} 
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  stroke="var(--text-secondary)"
+                  fontSize={12}
+                  dx={-10}
+                  tickFormatter={tick => `Rs.${tick / 1000}k`}
                 />
-                <Tooltip 
-                  cursor={{ fill: 'var(--hover-bg)' }}
-                  contentStyle={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border)', borderRadius: 8 }}
+                <Tooltip
+                  cursor={{ fill: 'var(--hover-bg)', radius: 6 }}
+                  contentStyle={{
+                    backgroundColor: 'var(--card-bg)',
+                    borderColor: 'var(--border)',
+                    borderRadius: 10,
+                    backdropFilter: 'blur(12px)',
+                    fontSize: 13,
+                  }}
                   formatter={(val) => [`Rs. ${fmt(val)}`, t('dashboard.sales', 'Sales')]}
                 />
-                <Bar dataKey="sales" fill="var(--accent)" radius={[4, 4, 0, 0]} barSize={40} />
+                <Bar dataKey="sales" fill="url(#barGrad)" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* ── Side Widgets ── */}
+        {/* Side Widgets */}
         <div className="dash-side-widgets">
-          
-          {/* Low Stock Alerts */}
+          {/* Low Stock */}
           <div className="dash-card">
             <div className="dash-card-header">
-              <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <AlertTriangle size={18} color="var(--warning)" />
-                {t('dashboard.low_stock', 'Low Stock Alerts')}
-              </h3>
+              <h3><AlertTriangle size={16} color="var(--warning)" /> {t('dashboard.low_stock', 'Low Stock Alerts')}</h3>
             </div>
             <div className="dash-widget-body">
               {lowStock.length === 0 ? (
@@ -162,10 +193,7 @@ export default function DashboardPage() {
           {/* Recent Transactions */}
           <div className="dash-card">
             <div className="dash-card-header">
-              <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Clock size={18} color="var(--text-secondary)" />
-                {t('dashboard.recent_sales', 'Recent Sales')}
-              </h3>
+              <h3><Clock size={16} color="var(--text-secondary)" /> {t('dashboard.recent_sales', 'Recent Sales')}</h3>
             </div>
             <div className="dash-widget-body">
               {recentTx.length === 0 ? (
@@ -176,10 +204,14 @@ export default function DashboardPage() {
                     <li key={tx.invoice_id} className="dash-list-item">
                       <div className="dli-main">
                         <span className="dli-name">{tx.invoice_number}</span>
-                        <span className="dli-sku">{new Date(tx.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        <span className="dli-sku">
+                          {new Date(tx.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </div>
                       <div className="dli-status">
-                        <strong>Rs. {fmt(tx.total_amount)}</strong>
+                        <strong style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--accent-light)', fontSize: '0.875rem' }}>
+                          Rs. {fmt(tx.total_amount)}
+                        </strong>
                       </div>
                     </li>
                   ))}
@@ -187,7 +219,6 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
-
         </div>
       </div>
     </div>

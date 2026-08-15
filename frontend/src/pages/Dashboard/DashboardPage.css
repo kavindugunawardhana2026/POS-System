@@ -1,24 +1,53 @@
+/* ─── Dashboard Root ─────────────────────────────────────────── */
 .dashboard-root {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 24px;
+  animation: fade-up 0.3s ease both;
 }
 
+/* ─── Header ─────────────────────────────────────────────────── */
+.dash-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.dash-header-left {}
 .dash-header h1 {
   font-size: 1.8rem;
   font-weight: 800;
-  margin-bottom: 4px;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--text-primary) 40%, var(--accent-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
 }
-
 .dash-header p {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
+.dash-clock {
+  text-align: right;
+  flex-shrink: 0;
+}
+.dash-clock-time {
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+.dash-clock-date {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
 }
 
-/* ── Loading Spinner ── */
+/* ─── Loading ────────────────────────────────────────────────── */
 .dash-loading {
   display: flex;
   flex-direction: column;
@@ -28,165 +57,178 @@
   gap: 16px;
   color: var(--text-secondary);
 }
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--border);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin { 100% { transform: rotate(360deg); } }
 
-/* ── Key Metrics Grid ── */
+/* ─── Metrics Grid ───────────────────────────────────────────── */
 .dash-metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
 }
 
 .dash-metric-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 20px;
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: transform var(--transition), box-shadow var(--transition);
+  position: relative;
+  overflow: hidden;
+  animation: fade-up 0.35s ease both;
 }
+.dash-metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.dash-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.dash-metric-card:nth-child(1) { animation-delay: 0.05s; }
+.dash-metric-card:nth-child(2) { animation-delay: 0.1s; }
+.dash-metric-card:nth-child(3) { animation-delay: 0.15s; }
+.dash-metric-card:nth-child(4) { animation-delay: 0.2s; }
+
+.dash-metric-card:nth-child(1)::before { background: linear-gradient(90deg, #6366f1, #818cf8); }
+.dash-metric-card:nth-child(2)::before { background: linear-gradient(90deg, #22c55e, #4ade80); }
+.dash-metric-card:nth-child(3)::before { background: linear-gradient(90deg, #f59e0b, #fcd34d); }
+.dash-metric-card:nth-child(4)::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
 
 .dmc-icon {
   width: 50px;
   height: 50px;
-  border-radius: 12px;
+  border-radius: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #fff;
+  flex-shrink: 0;
 }
-.bg-blue { background: #3b82f6; }
-.bg-green { background: #10b981; }
-.bg-orange { background: #f59e0b; }
-.bg-purple { background: #8b5cf6; }
+.bg-blue   { background: linear-gradient(135deg, #6366f1, #818cf8); box-shadow: 0 4px 14px rgba(99,102,241,0.4); }
+.bg-green  { background: linear-gradient(135deg, #22c55e, #4ade80); box-shadow: 0 4px 14px rgba(34,197,94,0.4); }
+.bg-orange { background: linear-gradient(135deg, #f59e0b, #fcd34d); box-shadow: 0 4px 14px rgba(245,158,11,0.4); }
+.bg-purple { background: linear-gradient(135deg, #8b5cf6, #a78bfa); box-shadow: 0 4px 14px rgba(139,92,246,0.4); }
 
-.dmc-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+.dmc-info  { display: flex; flex-direction: column; gap: 3px; }
 .dmc-label {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   color: var(--text-secondary);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 .dmc-val {
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   font-weight: 800;
   color: var(--text-primary);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
-/* ── Main Layout (Chart + Widgets) ── */
+/* ─── Main Grid (Chart + Widgets) ────────────────────────────── */
 .dash-main-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 24px;
+  gap: 20px;
+  animation: fade-up 0.4s ease 0.2s both;
 }
 
+/* ─── Cards ──────────────────────────────────────────────────── */
 .dash-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
 }
-
 .dash-card-header {
-  padding: 16px 20px;
+  padding: 18px 20px;
   border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 .dash-card-header h3 {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.dash-chart-card {
-  min-height: 400px;
-}
+/* ─── Chart ──────────────────────────────────────────────────── */
+.dash-chart-card { min-height: 360px; }
 .dash-chart-container {
   flex: 1;
-  padding: 20px;
+  padding: 20px 16px 16px;
 }
 
-/* ── Side Widgets ── */
-.dash-side-widgets {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
+/* ─── Side Widgets ───────────────────────────────────────────── */
+.dash-side-widgets { display: flex; flex-direction: column; gap: 20px; }
 
 .dash-widget-body {
-  padding: 0;
-  max-height: 350px;
+  max-height: 320px;
   overflow-y: auto;
 }
-
 .dash-empty {
-  padding: 30px;
+  padding: 32px 20px;
   text-align: center;
   color: var(--text-secondary);
-  font-style: italic;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
 }
 
-.dash-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
+/* ─── List items ─────────────────────────────────────────────── */
+.dash-list { list-style: none; padding: 0; margin: 0; }
 .dash-list-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
+  padding: 11px 20px;
   border-bottom: 1px solid var(--border);
+  transition: background var(--transition);
+  position: relative;
 }
-.dash-list-item:last-child {
-  border-bottom: none;
-}
+.dash-list-item:last-child { border-bottom: none; }
 .dash-list-item:hover {
   background: var(--hover-bg);
 }
-
-.dli-main {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.dli-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-.dli-sku {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
+.dash-list-item:hover::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #6366f1, #8b5cf6);
+  border-radius: 0 3px 3px 0;
 }
 
-.badge-warning {
-  background: #f59e0b22;
-  color: #d97706;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
+.dli-main { display: flex; flex-direction: column; gap: 2px; }
+.dli-name { font-size: 0.875rem; font-weight: 600; }
+.dli-sku  { font-size: 0.75rem; color: var(--text-secondary); }
+.dli-status { flex-shrink: 0; }
 
+/* ─── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 1024px) {
-  .dash-main-grid {
-    grid-template-columns: 1fr;
-  }
+  .dash-main-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .dash-header { flex-direction: column; gap: 12px; }
+  .dash-clock  { text-align: left; }
 }

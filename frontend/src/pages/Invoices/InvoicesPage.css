@@ -1,0 +1,92 @@
+/* ─── Invoices Page ──────────────────────────────────────────── */
+.invoices-page { display: flex; flex-direction: column; gap: 18px; }
+
+/* ─── Status Filter Toolbar ──────────────────────────────────── */
+.invoices-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.invoices-date-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+.invoices-date-label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+.invoices-date-input {
+  width: 145px;
+  padding: 7px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-family: var(--font);
+  transition: border-color var(--transition);
+}
+.invoices-date-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* Status pill filter buttons */
+.invoices-toolbar .btn-secondary {
+  padding: 5px 14px;
+  font-size: 0.82rem;
+  text-transform: capitalize;
+}
+.invoices-toolbar .btn-primary {
+  padding: 5px 14px;
+  font-size: 0.82rem;
+  text-transform: capitalize;
+}
+
+/* ─── Invoice Number ─────────────────────────────────────────── */
+.invoice-number {
+  font-family: 'Menlo', 'Consolas', monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent-light);
+  background: var(--accent-bg);
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(99,102,241,0.2);
+}
+
+/* ─── Invoice Date Cell ──────────────────────────────────────── */
+.invoice-date-primary { font-size: 0.875rem; color: var(--text-primary); }
+.invoice-date-secondary { font-size: 0.72rem; color: var(--text-secondary); }
+
+/* ─── Invoice Row ────────────────────────────────────────────── */
+.invoice-row { cursor: pointer; }
+
+/* ─── Customer Walk-in ───────────────────────────────────────── */
+.walk-in-text { color: var(--text-tertiary); font-style: italic; }
+
+/* ─── Cashier Cell ───────────────────────────────────────────── */
+.cashier-cell { color: var(--text-secondary); font-size: 0.85rem; }
+
+/* ─── Balance ────────────────────────────────────────────────── */
+.balance-due     { color: var(--danger); font-weight: 600; font-variant-numeric: tabular-nums; }
+.balance-none    { color: var(--text-tertiary); }
+.amount-total    { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ─── Pagination ─────────────────────────────────────────────── */
+.invoices-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.invoices-pagination-info {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
