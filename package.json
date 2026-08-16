@@ -1,0 +1,64 @@
+{
+  "name": "positiq-desktop",
+  "version": "1.0.0",
+  "description": "PositiQ — Point of Sale System for Sri Lanka",
+  "main": "electron/main.js",
+  "author": "Kavindu Gunawardhana <kavindugunawardhana2026@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "electron .",
+    "build:frontend": "cd frontend && npm run build",
+    "migrate:sqlite": "node backend/scripts/sqlite-migrate.js",
+    "pack": "npm run build:frontend && electron-builder --dir",
+    "dist": "npm run build:frontend && electron-builder"
+  },
+  "dependencies": {
+    "firebase": "^11.0.0"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "lk.positiq.pos",
+    "productName": "PositiQ",
+    "copyright": "Copyright © 2026 PositiQ",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "electron/**/*",
+      "!electron/node_modules"
+    ],
+    "extraResources": [
+      {
+        "from": "backend",
+        "to":   "backend",
+        "filter": [
+          "**/*",
+          "!node_modules/.cache",
+          "!*.log",
+          "!data"
+        ]
+      },
+      {
+        "from": "frontend/dist",
+        "to":   "frontend/dist"
+      }
+    ],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "public/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "public/icon.ico",
+      "installerHeaderIcon": "public/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "PositiQ POS"
+    }
+  }
+}

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PositiQ — Activate Your License</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #0d0f14;
+      --surface:    #161920;
+      --surface2:   #1e2230;
+      --border:     #2a2f42;
+      --accent:     #6366f1;
+      --accent-glow:#6366f1aa;
+      --text:       #e8eaf2;
+      --muted:      #7b82a0;
+      --error:      #f87171;
+      --success:    #34d399;
+      --warning:    #fbbf24;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Animated background orbs ── */
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      animation: float 12s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .bg-orb-1 { width: 400px; height: 400px; background: #6366f1; top: -100px; left: -100px; animation-delay: 0s; }
+    .bg-orb-2 { width: 300px; height: 300px; background: #8b5cf6; bottom: -80px; right: -80px; animation-delay: -5s; }
+    .bg-orb-3 { width: 200px; height: 200px; background: #06b6d4; top: 40%; left: 60%; animation-delay: -8s; }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(20px, -20px) scale(1.05); }
+      66%       { transform: translate(-15px, 15px) scale(0.97); }
+    }
+
+    /* ── Card ── */
+    .card {
+      position: relative;
+      width: 480px;
+      padding: 48px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(99,102,241,0.1);
+      backdrop-filter: blur(24px);
+      animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(32px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Logo / Header ── */
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .logo-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .logo-text { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
+    .logo-text span { color: var(--accent); }
+
+    h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 32px;
+    }
+
+    /* ── Input ── */
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: 'Inter', monospace;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.2);
+    }
+
+    input[type="text"]::placeholder {
+      letter-spacing: 1px;
+      color: var(--border);
+    }
+
+    /* ── Button ── */
+    button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover:not(:disabled) {
+      opacity: 0.92;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(99,102,241,0.5);
+    }
+
+    button:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ── Spinner inside button ── */
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Message area ── */
+    .message {
+      margin-top: 16px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      display: none;
+    }
+
+    .message.error   { background: rgba(248,113,113,0.12); color: var(--error);   border: 1px solid rgba(248,113,113,0.3); display: block; }
+    .message.success { background: rgba(52,211,153,0.12);  color: var(--success); border: 1px solid rgba(52,211,153,0.3);  display: block; }
+
+    /* ── Footer ── */
+    .footer {
+      margin-top: 28px;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .footer a { color: var(--accent); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+  <div class="bg-orb bg-orb-3"></div>
+
+  <div class="card">
+    <div class="logo-wrap">
+      <div class="logo-icon">🧾</div>
+      <div class="logo-text">Positi<span>Q</span></div>
+    </div>
+
+    <h1>Activate Your License</h1>
+    <p class="subtitle">Enter your subscription license key to get started. Your key was emailed to you upon purchase.</p>
+
+    <div class="input-group">
+      <label for="licenseKey">License Key</label>
+      <input
+        type="text"
+        id="licenseKey"
+        placeholder="XXXX-XXXX-XXXX-XXXX"
+        maxlength="40"
+        autocomplete="off"
+        spellcheck="false"
+      />
+    </div>
+
+    <button id="activateBtn" onclick="activate()">
+      <span id="btnText">Activate Now</span>
+    </button>
+
+    <div id="message" class="message"></div>
+
+    <div class="footer">
+      Need a license? <a href="#" onclick="openLink('https://positiq.lk')">Visit positiq.lk</a>
+      &nbsp;·&nbsp;
+      <a href="#" onclick="openLink('https://wa.me/94741227505')">WhatsApp Support</a>
+    </div>
+  </div>
+
+  <script>
+    const input      = document.getElementById('licenseKey');
+    const btn        = document.getElementById('activateBtn');
+    const btnText    = document.getElementById('btnText');
+    const messageEl  = document.getElementById('message');
+
+    // Auto-format key as user types: add dashes every 4 chars
+    input.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+      if (val.length > 4)  val = val.slice(0, 4)  + '-' + val.slice(4);
+      if (val.length > 9)  val = val.slice(0, 9)  + '-' + val.slice(9);
+      if (val.length > 14) val = val.slice(0, 14) + '-' + val.slice(14);
+      e.target.value = val;
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') activate();
+    });
+
+    function showMessage(text, type) {
+      messageEl.textContent = text;
+      messageEl.className   = `message ${type}`;
+    }
+
+    function setLoading(loading) {
+      btn.disabled   = loading;
+      btnText.innerHTML = loading
+        ? '<span class="spinner"></span>Verifying…'
+        : 'Activate Now';
+    }
+
+    async function activate() {
+      const key = input.value.trim();
+      if (!key || key.length < 5) {
+        showMessage('Please enter your license key.', 'error');
+        return;
+      }
+
+      setLoading(true);
+      messageEl.className = 'message'; // hide
+
+      try {
+        const result = await window.posAPI.validateLicense(key);
+
+        if (result.success) {
+          showMessage(`✅ Activated successfully! Welcome, ${result.customerName || 'Customer'}. Expires: ${result.expiryDate}.`, 'success');
+          setTimeout(() => {
+            // Main process will reload the app window
+          }, 1800);
+        } else {
+          const msgs = {
+            not_found: '❌ License key not found. Please check your key and try again.',
+            inactive:  '❌ This license is currently inactive. Please contact support.',
+            expired:   `❌ This license expired on ${result.expiryDate}. Please renew your subscription.`,
+          };
+          showMessage(msgs[result.reason] || '❌ Activation failed. Please contact support.', 'error');
+        }
+      } catch (err) {
+        showMessage('❌ Could not connect to the license server. Check your internet connection.', 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function openLink(url) {
+      // Will be handled by main process shell.openExternal
+      window.open(url, '_blank');
+    }
+
+    // Focus input on load
+    window.onload = () => input.focus();
+  </script>
+</body>
+</html>

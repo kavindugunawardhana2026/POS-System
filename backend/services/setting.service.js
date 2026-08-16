@@ -38,9 +38,8 @@ async function setModulePermissions(permissions) {
   const current = await getModulePermissions();
   const merged = { ...current, ...permissions };
   await db.execute(
-    `INSERT INTO Settings (setting_key, setting_value)
-     VALUES (?, ?)
-     ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)`,
+    `INSERT OR REPLACE INTO Settings (setting_key, setting_value)
+     VALUES (?, ?)`,
     [MODULE_PERMISSIONS_KEY, JSON.stringify(merged)]
   );
   return merged;
@@ -52,9 +51,8 @@ async function setModulePermissions(permissions) {
 async function setSetting(key, value) {
   const stored = typeof value === 'object' ? JSON.stringify(value) : String(value);
   await db.execute(
-    `INSERT INTO Settings (setting_key, setting_value)
-     VALUES (?, ?)
-     ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)`,
+    `INSERT OR REPLACE INTO Settings (setting_key, setting_value)
+     VALUES (?, ?)`,
     [key, stored]
   );
   return { key, value };

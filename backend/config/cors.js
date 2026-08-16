@@ -3,7 +3,12 @@
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173', // Vite dev
+  'http://localhost:5488', // Electron dev backend
   'http://127.0.0.1:3000',
+  'http://127.0.0.1:5173',
+  'http://127.0.0.1:5488',
+  // Electron renderer (production build loaded via file://)
+  // Origin is null for file:// — handled by !origin check below
 ];
 
 module.exports = {

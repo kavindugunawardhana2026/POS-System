@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PositiQ — Subscription Expired</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0d0f14;
+      --surface: #161920;
+      --border:  #2a2f42;
+      --accent:  #f87171;
+      --text:    #e8eaf2;
+      --muted:   #7b82a0;
+      --link:    #6366f1;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .bg-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+    .bg-orb-1 { width: 400px; height: 400px; background: #f87171; top: -120px; left: -120px; }
+    .bg-orb-2 { width: 280px; height: 280px; background: #ef4444; bottom: -80px; right: -80px; }
+
+    .card {
+      position: relative;
+      width: 480px;
+      padding: 48px;
+      background: var(--surface);
+      border: 1px solid #3d1a1a;
+      border-radius: 20px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(248,113,113,0.08);
+      text-align: center;
+      animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(32px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .logo-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #ef4444, #f87171);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+
+    .logo-text { font-size: 1.5rem; font-weight: 800; }
+    .logo-text span { color: var(--link); }
+
+    .icon-badge {
+      width: 72px; height: 72px;
+      background: rgba(248,113,113,0.12);
+      border: 2px solid rgba(248,113,113,0.3);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      margin: 0 auto 24px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #f87171;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .expiry-box {
+      background: rgba(248,113,113,0.07);
+      border: 1px solid rgba(248,113,113,0.2);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 28px;
+    }
+
+    .expiry-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .expiry-date {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #f87171;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 28px 0;
+    }
+
+    .action-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      margin-bottom: 10px;
+      border: none;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .action-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--muted);
+      border: 1.5px solid var(--border);
+    }
+
+    .footer-note {
+      margin-top: 20px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    #expiryDateEl { display: none; }
+  </style>
+</head>
+<body>
+  <div class="bg-orb bg-orb-1"></div>
+  <div class="bg-orb bg-orb-2"></div>
+
+  <div class="card">
+    <div class="logo-wrap">
+      <div class="logo-icon">🧾</div>
+      <div class="logo-text">Positi<span>Q</span></div>
+    </div>
+
+    <div class="icon-badge">🔒</div>
+
+    <h1>Subscription Expired</h1>
+    <p class="subtitle">
+      Your PositiQ subscription has expired or been deactivated.<br/>
+      Please renew your subscription to continue using the system.
+    </p>
+
+    <div class="expiry-box" id="expiryBox" style="display:none;">
+      <div class="expiry-label">Expired On</div>
+      <div class="expiry-date" id="expiryDateEl"></div>
+    </div>
+
+    <hr class="divider" />
+
+    <a href="#" class="action-btn btn-primary" onclick="openRenew()">
+      🔄 Renew Subscription
+    </a>
+    <a href="#" class="action-btn btn-outline" onclick="openWhatsApp()">
+      💬 Contact Support on WhatsApp
+    </a>
+
+    <div class="footer-note">
+      PositiQ · <a href="#" style="color:#6366f1; text-decoration:none;" onclick="openRenew()">positiq.lk</a>
+      &nbsp;·&nbsp;+94 74 122 7505
+    </div>
+  </div>
+
+  <script>
+    // Read expiry date passed as URL param from main.js
+    const params     = new URLSearchParams(window.location.search);
+    const expiryDate = params.get('expiryDate');
+    const reason     = params.get('reason');
+
+    if (expiryDate) {
+      document.getElementById('expiryBox').style.display = 'block';
+      document.getElementById('expiryDateEl').textContent = expiryDate;
+      document.getElementById('expiryDateEl').style.display = 'block';
+    }
+
+    if (reason === 'inactive') {
+      document.querySelector('h1').textContent = 'License Deactivated';
+      document.querySelector('.subtitle').innerHTML =
+        'Your PositiQ license has been deactivated.<br/>Please contact support for assistance.';
+    }
+
+    function openRenew() {
+      window.open('https://positiq.lk', '_blank');
+    }
+
+    function openWhatsApp() {
+      window.open('https://wa.me/94741227505?text=Hi%2C%20I%20need%20to%20renew%20my%20PositiQ%20subscription.', '_blank');
+    }
+  </script>
+</body>
+</html>
