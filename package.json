@@ -34,7 +34,7 @@
     "extraResources": [
       {
         "from": "backend",
-        "to":   "backend",
+        "to": "backend",
         "filter": [
           "**/*",
           "!node_modules/.cache",
@@ -44,11 +44,18 @@
       },
       {
         "from": "frontend/dist",
-        "to":   "frontend/dist"
+        "to": "frontend/dist"
       }
     ],
     "win": {
-      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "public/icon.ico"
     },
     "nsis": {
@@ -60,5 +67,10 @@
       "createStartMenuShortcut": true,
       "shortcutName": "PositiQ POS"
     }
+  },
+  "allowScripts": {
+    "electron@33.4.11": true,
+    "@firebase/util@1.12.1": true,
+    "protobufjs@7.6.5": true
   }
 }
