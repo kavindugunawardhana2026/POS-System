@@ -70,8 +70,7 @@ async function getLowStock(limit = 10) {
        AND stock_quantity <= low_stock_threshold
        AND low_stock_threshold > 0
      ORDER BY (stock_quantity - low_stock_threshold) ASC
-     LIMIT ?`,
-    [Number(limit)]
+     LIMIT ${Number(limit)}`
   );
   return rows;
 }
@@ -84,8 +83,7 @@ async function getRecentTransactions(limit = 5) {
      LEFT JOIN Customers c ON i.customer_id = c.customer_id
      WHERE i.deleted_at IS NULL
      ORDER BY i.created_at DESC
-     LIMIT ?`,
-    [Number(limit)]
+     LIMIT ${Number(limit)}`
   );
   return rows;
 }
