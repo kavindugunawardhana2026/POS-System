@@ -3,7 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { useToast } from '@/context/ToastContext'
 import { listInvoices, cancelInvoice } from '@/services/invoiceService'
-import { Eye, XCircle } from 'lucide-react'
+import api from '@/services/api'
+import { exportToCSV, exportToPDF } from '@/utils/exportUtils'
+import { Eye, XCircle, FileDown, FileText } from 'lucide-react'
 import './InvoicesPage.css'
 
 const fmt = (n) => Number(n || 0).toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -33,6 +35,14 @@ export default function InvoicesPage() {
   const [status, setStatus]     = useState('all')
   const [from, setFrom]         = useState('')
   const [to, setTo]             = useState('')
+  const [shopInfo, setShopInfo] = useState({})
+
+  // Fetch shop settings once for branded PDF exports
+  useEffect(() => {
+    api.get('/settings')
+      .then(r => setShopInfo(r.data?.data || {}))
+      .catch(() => { /* non-fatal */ })
+  }, [])
 
   const fetchInvoices = useCallback(async () => {
     setLoading(true)
@@ -66,12 +76,87 @@ export default function InvoicesPage() {
     }
   }
 
+  // ─── Export handlers ───────────────────────────────────────────────
+  const fmtDate = (iso) => {
+    if (!iso) return ''
+    const d = new Date(iso)
+    return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+  }
+
+  const buildExportRows = () => invoices.map(inv => ({
+    'Invoice #':        inv.invoice_number,
+    'Date':             fmtDate(inv.created_at),
+    'Customer':         inv.customer_name || 'Walk-in',
+    'Cashier':          inv.cashier || '',
+    'Type':             inv.sale_type || '',
+    'Total (Rs.)':      inv.total_amount,
+    'Paid (Rs.)':       inv.paid_amount,
+    'Balance (Rs.)':    inv.balance_due,
+    'Status':           inv.status?.replace('_', ' ') || '',
+  }))
+
+  const EXPORT_COLS = [
+    { key: 'Invoice #',     label: 'Invoice #',     numeric: false },
+    { key: 'Date',          label: 'Date',          numeric: false },
+    { key: 'Customer',      label: 'Customer',      numeric: false },
+    { key: 'Cashier',       label: 'Cashier',       numeric: false },
+    { key: 'Type',          label: 'Type',          numeric: false },
+    { key: 'Total (Rs.)',   label: 'Total (Rs.)',   numeric: true  },
+    { key: 'Paid (Rs.)',    label: 'Paid (Rs.)',    numeric: true  },
+    { key: 'Balance (Rs.)', label: 'Balance (Rs.)', numeric: true  },
+    { key: 'Status',        label: 'Status',        numeric: false },
+  ]
+
+  const fileTag = `invoices_${status}${from ? `_${from}` : ''}${to ? `_${to}` : ''}`
+
+  const handleExportCSV = () => {
+    try {
+      exportToCSV(buildExportRows(), `${fileTag}.csv`, EXPORT_COLS)
+      toast.success('CSV downloaded')
+    } catch {
+      toast.error('CSV export failed')
+    }
+  }
+
+  const handleExportPDF = () => {
+    try {
+      const title = `Invoices Report (${status}${from ? `, ${from}` : ''}${to ? ` → ${to}` : ''})`
+      exportToPDF(buildExportRows(), `${fileTag}.pdf`, title, EXPORT_COLS, {
+        name:    shopInfo.store_name,
+        address: shopInfo.address,
+        phone:   shopInfo.phone,
+        email:   shopInfo.email,
+      })
+      toast.success('PDF downloaded')
+    } catch {
+      toast.error('PDF export failed')
+    }
+  }
+
   return (
     <div className="invoices-page page-root">
       <div className="page-header">
         <div>
           <h1 className="page-title">Invoices</h1>
           <p className="page-subtitle">{meta.total || 0} invoices total</p>
+        </div>
+        <div className="page-actions">
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={handleExportCSV}
+            disabled={loading || invoices.length === 0}
+            title="Export current view as CSV"
+          >
+            <FileText size={14} /> Export CSV
+          </button>
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={handleExportPDF}
+            disabled={loading || invoices.length === 0}
+            title="Export current view as PDF"
+          >
+            <FileDown size={14} /> Export PDF
+          </button>
         </div>
       </div>
 

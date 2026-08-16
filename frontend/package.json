@@ -12,6 +12,8 @@
   "dependencies": {
     "axios": "^1.19.0",
     "i18next": "^26.3.6",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "lucide-react": "^1.31.0",
     "react": "^19.2.8",
     "react-barcode": "^1.6.1",

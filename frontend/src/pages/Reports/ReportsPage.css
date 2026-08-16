@@ -131,3 +131,10 @@
 @media (max-width: 1024px) {
   .reports-bottom-grid { grid-template-columns: 1fr; }
 }
+
+/* ─── Export buttons ─────────────────────────────────────────── */
+.page-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

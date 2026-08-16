@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useToast } from '@/context/ToastContext'
-import { DollarSign, TrendingUp, Tag, CheckCircle, Trophy, CreditCard } from 'lucide-react'
+import { DollarSign, TrendingUp, Tag, CheckCircle, Trophy, CreditCard, FileDown, FileText } from 'lucide-react'
 import api from '@/services/api'
+import { exportToCSV, exportToPDF } from '@/utils/exportUtils'
 import {
   LineChart, Line, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip,
@@ -43,6 +44,7 @@ export default function ReportsPage() {
   const [topProducts, setTopProducts] = useState([])
   const [periodData, setPeriodData]   = useState([])
   const [paymentData, setPaymentData] = useState([])
+  const [shopInfo, setShopInfo]       = useState({})
 
   const QUICK = [
     { label: 'Today',      from: defaultTo(),          to: defaultTo() },
@@ -78,6 +80,113 @@ export default function ReportsPage() {
 
   useEffect(() => { loadAll() }, [loadAll])
 
+  // Fetch shop settings once for branding exports
+  useEffect(() => {
+    api.get('/settings')
+      .then(r => setShopInfo(r.data?.data || {}))
+      .catch(() => { /* non-fatal */ })
+  }, [])
+
+  // ─── Export handlers ───────────────────────────────────────────────
+  const dateTag = `${from}_to_${to}`
+
+  const handleExportCSV = () => {
+    try {
+      const rows = [
+        { Section: 'Sales Summary', Metric: 'Total Revenue',        Value: summary?.total_revenue ?? '' },
+        { Section: 'Sales Summary', Metric: 'Invoice Count',        Value: summary?.invoice_count  ?? '' },
+        { Section: 'Sales Summary', Metric: 'Average Order Value',  Value: summary?.avg_order_value ?? '' },
+        { Section: 'Sales Summary', Metric: 'Total Discount',       Value: summary?.total_discount  ?? '' },
+        { Section: 'Sales Summary', Metric: 'Paid Invoices',        Value: summary?.paid_count      ?? '' },
+        { Section: 'Sales Summary', Metric: 'Unpaid Invoices',      Value: summary?.unpaid_count    ?? '' },
+        ...periodData.map(p => ({
+          Section: 'Sales Trend',
+          Metric: p.period,
+          'Revenue (Rs.)': p.Revenue,
+          Invoices: p.Invoices,
+        })),
+        ...topProducts.map((p, i) => ({
+          Section: 'Top Products',
+          Rank: i + 1,
+          Product: p.name,
+          SKU: p.sku,
+          'Qty Sold': p.qty_sold,
+          'Revenue (Rs.)': p.revenue,
+        })),
+        ...paymentData.map(p => ({
+          Section: 'Payment Methods',
+          'Payment Method': p.payment_method,
+          'Total (Rs.)': p.total,
+        })),
+      ]
+      const cols = [
+        { key: 'Section',         label: 'Section' },
+        { key: 'Metric',          label: 'Metric' },
+        { key: 'Rank',            label: 'Rank' },
+        { key: 'Product',         label: 'Product' },
+        { key: 'SKU',             label: 'SKU' },
+        { key: 'Qty Sold',        label: 'Qty Sold' },
+        { key: 'Revenue (Rs.)',   label: 'Revenue (Rs.)' },
+        { key: 'Total (Rs.)',     label: 'Total (Rs.)' },
+        { key: 'Payment Method',  label: 'Payment Method' },
+        { key: 'Invoices',        label: 'Invoices' },
+        { key: 'Value',           label: 'Value' },
+      ]
+      exportToCSV(rows, `sales-report_${dateTag}.csv`, cols)
+      toast.success('CSV downloaded')
+    } catch {
+      toast.error('CSV export failed')
+    }
+  }
+
+  const handleExportPDF = () => {
+    try {
+      const title = `Sales Report (${from} → ${to})`
+      const cols = [
+        { key: 'Section',        label: 'Section',        numeric: false },
+        { key: 'Metric',         label: 'Metric / Period',numeric: false },
+        { key: 'Product',        label: 'Product',        numeric: false },
+        { key: 'Revenue (Rs.)',  label: 'Revenue (Rs.)',  numeric: true  },
+        { key: 'Qty Sold',       label: 'Qty Sold',       numeric: true  },
+        { key: 'Total (Rs.)',    label: 'Total (Rs.)',    numeric: true  },
+      ]
+      const rows = [
+        { Section: 'Sales Summary', Metric: 'Total Revenue',       'Revenue (Rs.)': summary?.total_revenue ?? '' },
+        { Section: 'Sales Summary', Metric: 'Invoice Count',       'Qty Sold':      summary?.invoice_count  ?? '' },
+        { Section: 'Sales Summary', Metric: 'Avg Order Value',     'Revenue (Rs.)': summary?.avg_order_value ?? '' },
+        { Section: 'Sales Summary', Metric: 'Total Discount',      'Revenue (Rs.)': summary?.total_discount  ?? '' },
+        { Section: 'Sales Summary', Metric: 'Paid Invoices',       'Qty Sold':      summary?.paid_count      ?? '' },
+        { Section: 'Sales Summary', Metric: 'Unpaid Invoices',     'Qty Sold':      summary?.unpaid_count    ?? '' },
+        ...periodData.map(p => ({
+          Section: 'Sales Trend',
+          Metric: p.period,
+          'Revenue (Rs.)': p.Revenue,
+          'Qty Sold': p.Invoices,
+        })),
+        ...topProducts.map(p => ({
+          Section: 'Top Products',
+          Product: `${p.name} (${p.sku})`,
+          'Revenue (Rs.)': p.revenue,
+          'Qty Sold': p.qty_sold,
+        })),
+        ...paymentData.map(p => ({
+          Section: 'Payment Methods',
+          Metric: p.payment_method,
+          'Total (Rs.)': p.total,
+        })),
+      ]
+      exportToPDF(rows, `sales-report_${dateTag}.pdf`, title, cols, {
+        name:    shopInfo.store_name,
+        address: shopInfo.address,
+        phone:   shopInfo.phone,
+        email:   shopInfo.email,
+      })
+      toast.success('PDF downloaded')
+    } catch {
+      toast.error('PDF export failed')
+    }
+  }
+
   const tooltipStyle = {
     backgroundColor: 'var(--card-bg)',
     border: '1px solid var(--border)',
@@ -91,6 +200,24 @@ export default function ReportsPage() {
         <div>
           <h1 className="page-title">Reports</h1>
           <p className="page-subtitle">Sales analytics and insights</p>
+        </div>
+        <div className="page-actions">
+          <button
+            className="btn btn-secondary btn-sm"
+            onClick={handleExportCSV}
+            disabled={loading}
+            title="Export current report as CSV"
+          >
+            <FileText size={14} /> Export CSV
+          </button>
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={handleExportPDF}
+            disabled={loading}
+            title="Export current report as PDF"
+          >
+            <FileDown size={14} /> Export PDF
+          </button>
         </div>
       </div>
 

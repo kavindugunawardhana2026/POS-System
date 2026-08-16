@@ -90,3 +90,10 @@
   font-size: 0.82rem;
   color: var(--text-secondary);
 }
+
+/* ─── Export buttons ─────────────────────────────────────────── */
+.page-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
