@@ -59,7 +59,11 @@ function normalizeSql(sql) {
  * We map booleans to 1 / 0.
  */
 function normalizeParams(params) {
-  return params.map(p => (typeof p === 'boolean' ? (p ? 1 : 0) : p));
+  return params.map(p => {
+    if (typeof p === 'boolean') return p ? 1 : 0;
+    if (p instanceof Date) return p.toISOString(); // SQLite prefers ISO8601 strings
+    return p;
+  });
 }
 
 /**
