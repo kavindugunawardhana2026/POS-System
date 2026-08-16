@@ -3,24 +3,31 @@
 const db = require('../config/db');
 
 async function getMetrics() {
-  const todayStr = new Date().toISOString().slice(0, 10);
-  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // Convert local midnight to UTC strings for database comparison
+  const startStr = today.toISOString().slice(0, 19).replace('T', ' ');
+  const endStr = tomorrow.toISOString().slice(0, 19).replace('T', ' ');
+
   // Sales and orders today
   const [[sales]] = await db.execute(
     `SELECT 
        COALESCE(SUM(total_amount), 0) AS total_sales,
        COUNT(invoice_id) AS total_orders
      FROM Invoices
-     WHERE DATE(created_at) = ? AND status != 'cancelled' AND status != 'void' AND deleted_at IS NULL`,
-    [todayStr]
+     WHERE created_at >= ? AND created_at < ? AND status != 'cancelled' AND status != 'void' AND deleted_at IS NULL`,
+    [startStr, endStr]
   );
 
   // Returns today
   const [[returns]] = await db.execute(
     `SELECT COUNT(return_id) AS total_returns
      FROM Returns
-     WHERE DATE(created_at) = ?`,
-    [todayStr]
+     WHERE created_at >= ? AND created_at < ?`,
+    [startStr, endStr]
   );
 
   // Customers (all time, but we can return total for metric)
@@ -37,26 +44,22 @@ async function getMetrics() {
 }
 
 async function getSalesTrend(days = 7) {
-  // Returns last N days of sales grouped by date
-  // Using an inline query to get the last X days, assuming there's data on those days.
-  // For a more robust approach in MySQL 8+, a recursive CTE could generate the dates.
-  // We'll just group existing invoice dates over the last N days.
-  
+  const offsetMinutes = -new Date().getTimezoneOffset();
   const [rows] = await db.execute(
     `SELECT 
-       DATE(created_at) as date, 
+       DATE(DATE_ADD(created_at, INTERVAL ? MINUTE)) as date, 
        SUM(total_amount) as sales,
        COUNT(invoice_id) as orders
      FROM Invoices
-     WHERE created_at >= DATE(NOW() - INTERVAL ? DAY)
+     WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
        AND status != 'cancelled' AND status != 'void' AND deleted_at IS NULL
-     GROUP BY DATE(created_at)
+     GROUP BY date
      ORDER BY date ASC`,
-    [days]
+    [offsetMinutes, days]
   );
 
   return rows.map(r => ({
-    date: r.date.toISOString().slice(0, 10),
+    date: typeof r.date === 'string' ? r.date : r.date.toISOString().slice(0, 10),
     sales: Number(r.sales),
     orders: Number(r.orders)
   }));
