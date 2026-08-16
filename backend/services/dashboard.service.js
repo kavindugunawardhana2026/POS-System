@@ -3,14 +3,7 @@
 const db = require('../config/db');
 
 async function getMetrics() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  // Convert local midnight to UTC strings for database comparison
-  const startStr = today.toISOString().slice(0, 19).replace('T', ' ');
-  const endStr = tomorrow.toISOString().slice(0, 19).replace('T', ' ');
+  const offsetMinutes = -new Date().getTimezoneOffset();
 
   // Sales and orders today
   const [[sales]] = await db.execute(
@@ -18,16 +11,17 @@ async function getMetrics() {
        COALESCE(SUM(total_amount), 0) AS total_sales,
        COUNT(invoice_id) AS total_orders
      FROM Invoices
-     WHERE created_at >= ? AND created_at < ? AND status != 'cancelled' AND status != 'void' AND deleted_at IS NULL`,
-    [startStr, endStr]
+     WHERE DATE(DATE_ADD(created_at, INTERVAL ? MINUTE)) = DATE(DATE_ADD(NOW(), INTERVAL ? MINUTE))
+       AND status != 'cancelled' AND status != 'void' AND deleted_at IS NULL`,
+    [offsetMinutes, offsetMinutes]
   );
 
   // Returns today
   const [[returns]] = await db.execute(
     `SELECT COUNT(return_id) AS total_returns
      FROM Returns
-     WHERE created_at >= ? AND created_at < ?`,
-    [startStr, endStr]
+     WHERE DATE(DATE_ADD(created_at, INTERVAL ? MINUTE)) = DATE(DATE_ADD(NOW(), INTERVAL ? MINUTE))`,
+    [offsetMinutes, offsetMinutes]
   );
 
   // Customers (all time, but we can return total for metric)
