@@ -5,8 +5,8 @@ import { useTheme } from '@/context/ThemeContext'
 import {
   LayoutDashboard, ShoppingCart, Package, Receipt,
   Undo2, Users, Truck, ShoppingBag, BarChart3,
-  Clock, Tag, UserCog, Settings, Store,
-  Sun, Moon, LogOut
+  Clock, Tag, Tags, UserCog, Settings, Store,
+  Sun, Moon, LogOut, DollarSign
 } from 'lucide-react'
 import './Layout.css'
 
@@ -23,15 +23,17 @@ const NAV_SECTIONS = [
   {
     label: 'Inventory',
     items: [
-      { to: '/products',  module: 'products',  label: 'nav.products',  icon: Package },
-      { to: '/suppliers', module: 'suppliers', label: 'nav.suppliers', icon: Truck },
-      { to: '/purchases', module: 'purchases', label: 'nav.purchases', icon: ShoppingBag },
+      { to: '/products',   module: 'products',  label: 'nav.products',    icon: Package },
+      { to: '/categories', module: 'products',  label: 'Categories',      icon: Tags },
+      { to: '/suppliers',  module: 'suppliers', label: 'nav.suppliers',   icon: Truck },
+      { to: '/purchases',  module: 'purchases', label: 'nav.purchases',   icon: ShoppingBag },
     ],
   },
   {
     label: 'Management',
     items: [
       { to: '/customers', module: 'customers', label: 'nav.customers', icon: Users },
+      { to: '/expenses',  module: 'expenses',  label: 'Expenses',      icon: DollarSign },
       { to: '/reports',   module: 'reports',   label: 'nav.reports',   icon: BarChart3 },
     ],
   },

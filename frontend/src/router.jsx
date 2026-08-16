@@ -15,6 +15,8 @@ import SettingsPage from '@/pages/Settings/SettingsPage'
 import UsersPage from '@/pages/Users/UsersPage'
 import ShiftsPage from '@/pages/Shifts/ShiftsPage'
 import PromotionsPage from '@/pages/Promotions/PromotionsPage'
+import ExpensesPage from '@/pages/Expenses/ExpensesPage'
+import CategoriesPage from '@/pages/Categories/CategoriesPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import PrivateRoute from '@/components/Auth/PrivateRoute'
 
@@ -39,6 +41,8 @@ const router = createBrowserRouter([
       { path: 'reports', element: <ReportsPage /> },
       { path: 'shifts', element: <ShiftsPage /> },
       { path: 'promotions', element: <PromotionsPage /> },
+      { path: 'expenses', element: <ExpensesPage /> },
+      { path: 'categories', element: <CategoriesPage /> },
       { path: 'settings', element: <SettingsPage /> },
       { path: 'users', element: <UsersPage /> },
     ],
