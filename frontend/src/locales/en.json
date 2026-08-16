@@ -12,6 +12,9 @@
     "reports": "Reports",
     "settings": "Settings",
     "users": "Users",
+    "expenses": "Expenses",
+    "shifts": "Shifts",
+    "promotions": "Promotions",
     "logout": "Logout"
   },
   "auth": {
@@ -218,5 +221,39 @@
     "inactive": "Inactive",
     "pin_set": "● PIN set",
     "no_pin": "○ No PIN"
+  },
+  "categories": {
+    "title": "Product Categories",
+    "add": "+ Add Category",
+    "search_placeholder": "Search categories...",
+    "no_data": "No categories yet",
+    "add_first": "+ Add First Category",
+    "order": "Order: ",
+    "edit": "Edit Category",
+    "new": "+ New Category",
+    "sort_order": "Sort Order",
+    "create": "Create Category"
+  },
+  "expenses": {
+    "title": "Expenses",
+    "record": "+ Record Expense",
+    "total_expenses": "Total Expenses",
+    "total_records": "Total Records",
+    "search_placeholder": "Search category, notes...",
+    "all_categories": "All Categories",
+    "all_methods": "All Methods",
+    "date": "Date",
+    "category": "Category",
+    "amount": "Amount",
+    "payment": "Payment",
+    "recorded_by": "Recorded By",
+    "notes": "Notes",
+    "no_data": "No expenses found",
+    "record_first": "+ Record First Expense",
+    "edit": "Edit Expense",
+    "new": "+ New Expense",
+    "payment_method": "Payment Method",
+    "save_changes": "Save Changes",
+    "select_category": "Select category..."
   }
 }

@@ -16,6 +16,7 @@ const PM_LABELS = { cash: '💵 Cash', card: '💳 Card', upi: '📱 UPI', bank_
 
 // ─── Expense Modal ────────────────────────────────────────────────────────────
 function ExpenseModal({ expense, onClose, onSaved }) {
+  const { t } = useTranslation()
   const toast = useToast()
   const isEdit = !!expense
   const [loading, setLoading] = useState(false)
@@ -52,27 +53,27 @@ function ExpenseModal({ expense, onClose, onSaved }) {
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{isEdit ? 'Edit Expense' : '+ New Expense'}</h2>
+          <h2>{isEdit ? t('expenses.edit', 'Edit Expense') : t('expenses.new', '+ New Expense')}</h2>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
         <form onSubmit={handleSubmit} className="modal-body">
           <div className="form-row">
             <div className="form-group" style={{ flex: 2 }}>
-              <label>Category *</label>
+              <label>{t('expenses.category', 'Category')} *</label>
               <select
                 className="input"
                 required
                 value={form.category}
                 onChange={e => set('category', e.target.value)}
               >
-                <option value="">Select category…</option>
+                <option value="">{t('expenses.select_category', 'Select category…')}</option>
                 {EXPENSE_CATEGORIES.map(c => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
             </div>
             <div className="form-group" style={{ flex: 1 }}>
-              <label>Amount (Rs.) *</label>
+              <label>{t('expenses.amount', 'Amount')} (Rs.) *</label>
               <input
                 className="input"
                 type="number"
@@ -88,7 +89,7 @@ function ExpenseModal({ expense, onClose, onSaved }) {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Date *</label>
+              <label>{t('expenses.date', 'Date')} *</label>
               <input
                 className="input"
                 type="date"
@@ -98,7 +99,7 @@ function ExpenseModal({ expense, onClose, onSaved }) {
               />
             </div>
             <div className="form-group">
-              <label>Payment Method</label>
+              <label>{t('expenses.payment_method', 'Payment Method')}</label>
               <select
                 className="input"
                 value={form.payment_method}
@@ -112,7 +113,7 @@ function ExpenseModal({ expense, onClose, onSaved }) {
           </div>
 
           <div className="form-group">
-            <label>Notes</label>
+            <label>{t('expenses.notes', 'Notes')}</label>
             <textarea
               className="input"
               rows={2}
@@ -123,9 +124,9 @@ function ExpenseModal({ expense, onClose, onSaved }) {
           </div>
 
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>{t('common.cancel', 'Cancel')}</button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Saving…' : (isEdit ? 'Save Changes' : 'Record Expense')}
+              {loading ? t('common.loading', 'Saving…') : (isEdit ? t('expenses.save_changes', 'Save Changes') : t('expenses.record', 'Record Expense'))}
             </button>
           </div>
         </form>
@@ -201,14 +202,14 @@ export default function ExpensesPage() {
       {/* Header */}
       <div className="page-header">
         <div>
-          <h1 className="page-title">💸 Expenses</h1>
+          <h1 className="page-title">💸 {t('expenses.title', 'Expenses')}</h1>
           <p className="page-subtitle">
-            {meta.total || 0} records · Total: <strong style={{ color: 'var(--danger)' }}>Rs. {fmt(meta.total_amount)}</strong>
+            {meta.total || 0} {t('expenses.total_records', 'records').toLowerCase()} · {t('pos.total', 'Total')}: <strong style={{ color: 'var(--danger)' }}>Rs. {fmt(meta.total_amount)}</strong>
           </p>
         </div>
         {isAdmin && (
           <button className="btn btn-primary" onClick={() => setModal({ data: null })}>
-            + Record Expense
+            {t('expenses.record', '+ Record Expense')}
           </button>
         )}
       </div>
@@ -218,14 +219,14 @@ export default function ExpensesPage() {
         <div className="expense-stat-card">
           <TrendingDown size={20} style={{ color: 'var(--danger)' }} />
           <div>
-            <div className="expense-stat-label">Total Expenses</div>
+            <div className="expense-stat-label">{t('expenses.total_expenses', 'Total Expenses')}</div>
             <div className="expense-stat-value">Rs. {fmt(meta.total_amount)}</div>
           </div>
         </div>
         <div className="expense-stat-card">
           <span style={{ fontSize: '1.25rem' }}>📋</span>
           <div>
-            <div className="expense-stat-label">Total Records</div>
+            <div className="expense-stat-label">{t('expenses.total_records', 'Total Records')}</div>
             <div className="expense-stat-value">{meta.total || 0}</div>
           </div>
         </div>
@@ -235,17 +236,17 @@ export default function ExpensesPage() {
       <div className="toolbar expenses-toolbar">
         <input
           className="input"
-          placeholder="Search category, notes…"
+          placeholder={t('expenses.search_placeholder', 'Search category, notes…')}
           value={search}
           onChange={e => setSearch(e.target.value)}
           style={{ maxWidth: 240 }}
         />
         <select className="input" value={filterCat} onChange={e => setFilterCat(e.target.value)} style={{ maxWidth: 180 }}>
-          <option value="">All Categories</option>
+          <option value="">{t('expenses.all_categories', 'All Categories')}</option>
           {EXPENSE_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
         <select className="input" value={filterPM} onChange={e => setFilterPM(e.target.value)} style={{ maxWidth: 170 }}>
-          <option value="">All Methods</option>
+          <option value="">{t('expenses.all_methods', 'All Methods')}</option>
           {PAYMENT_METHODS.map(m => <option key={m} value={m}>{PM_LABELS[m]}</option>)}
         </select>
         <input
@@ -267,7 +268,7 @@ export default function ExpensesPage() {
         {(filterCat || filterPM || dateFrom || dateTo || search) && (
           <button className="btn btn-secondary btn-sm" onClick={() => {
             setSearch(''); setFilterCat(''); setFilterPM(''); setDateFrom(''); setDateTo('')
-          }}>Clear</button>
+          }}>{t('pos.clear', 'Clear')}</button>
         )}
       </div>
 
@@ -279,13 +280,13 @@ export default function ExpensesPage() {
           <table className="table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Category</th>
-                <th>Amount</th>
-                <th>Payment</th>
-                <th>Recorded By</th>
-                <th>Notes</th>
-                {isAdmin && <th>Actions</th>}
+                <th>{t('expenses.date', 'Date')}</th>
+                <th>{t('expenses.category', 'Category')}</th>
+                <th>{t('expenses.amount', 'Amount')}</th>
+                <th>{t('expenses.payment', 'Payment')}</th>
+                <th>{t('expenses.recorded_by', 'Recorded By')}</th>
+                <th>{t('expenses.notes', 'Notes')}</th>
+                {isAdmin && <th>{t('common.actions', 'Actions')}</th>}
               </tr>
             </thead>
             <tbody>
@@ -294,8 +295,8 @@ export default function ExpensesPage() {
                   <td colSpan={isAdmin ? 7 : 6} className="empty-state-cell">
                     <div className="empty-state">
                       <div className="empty-state-icon">💸</div>
-                      <div>No expenses found</div>
-                      {isAdmin && <button className="btn btn-primary btn-sm" onClick={() => setModal({ data: null })}>+ Record First Expense</button>}
+                      <div>{t('expenses.no_data', 'No expenses found')}</div>
+                      {isAdmin && <button className="btn btn-primary btn-sm" onClick={() => setModal({ data: null })}>{t('expenses.record_first', '+ Record First Expense')}</button>}
                     </div>
                   </td>
                 </tr>
@@ -325,10 +326,10 @@ export default function ExpensesPage() {
                   {isAdmin && (
                     <td>
                       <div className="action-btns">
-                        <button className="btn-icon" title="Edit" onClick={() => setModal({ data: exp })}>
+                        <button className="btn-icon" title={t('common.edit', 'Edit')} onClick={() => setModal({ data: exp })}>
                           <Pencil size={14} />
                         </button>
-                        <button className="btn-icon btn-icon-danger" title="Delete" onClick={() => handleDelete(exp)}>
+                        <button className="btn-icon btn-icon-danger" title={t('common.delete', 'Delete')} onClick={() => handleDelete(exp)}>
                           <Trash2 size={14} />
                         </button>
                       </div>

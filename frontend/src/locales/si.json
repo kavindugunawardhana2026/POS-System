@@ -12,6 +12,9 @@
     "reports": "වාර්තා",
     "settings": "සැකසුම්",
     "users": "පරිශීලකයින්",
+    "expenses": "වියදම්",
+    "shifts": "සේවා මුර",
+    "promotions": "ප්‍රවර්ධන",
     "logout": "ඉවත් වන්න"
   },
   "auth": {
@@ -218,5 +221,39 @@
     "inactive": "අක්‍රියයි",
     "pin_set": "● PIN අංකය ඇත",
     "no_pin": "○ PIN අංකයක් නැත"
+  },
+  "categories": {
+    "title": "නිෂ්පාදන කාණ්ඩ",
+    "add": "+ කාණ්ඩයක් එක් කරන්න",
+    "search_placeholder": "කාණ්ඩ සොයන්න...",
+    "no_data": "තවම කාණ්ඩ නොමැත",
+    "add_first": "+ පළමු කාණ්ඩය එක් කරන්න",
+    "order": "අනුපිළිවෙල: ",
+    "edit": "කාණ්ඩය සංස්කරණය",
+    "new": "+ නව කාණ්ඩයක්",
+    "sort_order": "අනුපිළිවෙල",
+    "create": "කාණ්ඩය සාදන්න"
+  },
+  "expenses": {
+    "title": "වියදම්",
+    "record": "+ වියදමක් සටහන් කරන්න",
+    "total_expenses": "මුළු වියදම්",
+    "total_records": "මුළු වාර්තා",
+    "search_placeholder": "කාණ්ඩය, සටහන් සොයන්න...",
+    "all_categories": "සියලු කාණ්ඩ",
+    "all_methods": "සියලු ක්‍රම",
+    "date": "දිනය",
+    "category": "කාණ්ඩය",
+    "amount": "මුදල",
+    "payment": "ගෙවීම",
+    "recorded_by": "සටහන් කළේ",
+    "notes": "සටහන්",
+    "no_data": "වියදම් හමු නොවිණි",
+    "record_first": "+ පළමු වියදම සටහන් කරන්න",
+    "edit": "වියදම සංස්කරණය",
+    "new": "+ නව වියදමක්",
+    "payment_method": "ගෙවීමේ ක්‍රමය",
+    "save_changes": "වෙනස්කම් සුරකින්න",
+    "select_category": "කාණ්ඩයක් තෝරන්න..."
   }
 }

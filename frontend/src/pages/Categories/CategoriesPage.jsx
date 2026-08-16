@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/context/AuthContext'
 import { useToast } from '@/context/ToastContext'
 import { listCategories, createCategory, updateCategory, deleteCategory } from '@/services/categoryService'
@@ -7,6 +8,7 @@ import './CategoriesPage.css'
 
 // ─── Category Modal ───────────────────────────────────────────────────────────
 function CategoryModal({ category, onClose, onSaved }) {
+  const { t } = useTranslation()
   const toast = useToast()
   const isEdit = !!category
   const [loading, setLoading] = useState(false)
@@ -42,12 +44,12 @@ function CategoryModal({ category, onClose, onSaved }) {
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>{isEdit ? 'Edit Category' : '+ New Category'}</h2>
+          <h2>{isEdit ? t('categories.edit', 'Edit Category') : t('categories.new', '+ New Category')}</h2>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
         <form onSubmit={handleSubmit} className="modal-body">
           <div className="form-group">
-            <label>Name *</label>
+            <label>{t('products.fields.name', 'Name')} *</label>
             <input
               className="input"
               required
@@ -58,7 +60,7 @@ function CategoryModal({ category, onClose, onSaved }) {
           </div>
 
           <div className="form-group">
-            <label>Description</label>
+            <label>{t('products.fields.description', 'Description')}</label>
             <textarea
               className="input"
               rows={2}
@@ -70,7 +72,7 @@ function CategoryModal({ category, onClose, onSaved }) {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Sort Order</label>
+              <label>{t('categories.sort_order', 'Sort Order')}</label>
               <input
                 className="input"
                 type="number"
@@ -88,14 +90,14 @@ function CategoryModal({ category, onClose, onSaved }) {
                 onChange={e => set('is_active', e.target.checked)}
                 style={{ width: 18, height: 18, accentColor: 'var(--primary)' }}
               />
-              <label htmlFor="cat-active" style={{ margin: 0, cursor: 'pointer', fontWeight: 500 }}>Active</label>
+              <label htmlFor="cat-active" style={{ margin: 0, cursor: 'pointer', fontWeight: 500 }}>{t('users.active', 'Active')}</label>
             </div>
           </div>
 
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>{t('common.cancel', 'Cancel')}</button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Saving…' : (isEdit ? 'Save Changes' : 'Create Category')}
+              {loading ? t('common.loading', 'Saving…') : (isEdit ? t('settings.save_changes', 'Save Changes') : t('categories.create', 'Create Category'))}
             </button>
           </div>
         </form>
@@ -106,6 +108,7 @@ function CategoryModal({ category, onClose, onSaved }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function CategoriesPage() {
+  const { t } = useTranslation()
   const { user: me } = useAuth()
   const toast = useToast()
   const isAdmin = me?.role === 'admin' || me?.role === 'manager'
@@ -151,12 +154,12 @@ export default function CategoriesPage() {
       {/* Header */}
       <div className="page-header">
         <div>
-          <h1 className="page-title"><Tags size={22} style={{ verticalAlign: 'middle', marginRight: 8 }} />Product Categories</h1>
-          <p className="page-subtitle">{meta.total || 0} categories</p>
+          <h1 className="page-title"><Tags size={22} style={{ verticalAlign: 'middle', marginRight: 8 }} />{t('categories.title', 'Product Categories')}</h1>
+          <p className="page-subtitle">{meta.total || 0} {t('nav.categories', 'Categories').toLowerCase()}</p>
         </div>
         {isAdmin && (
           <button className="btn btn-primary" onClick={() => setModal({ data: null })}>
-            + Add Category
+            {t('categories.add', '+ Add Category')}
           </button>
         )}
       </div>
@@ -165,7 +168,7 @@ export default function CategoriesPage() {
       <div className="toolbar">
         <input
           className="input"
-          placeholder="Search categories…"
+          placeholder={t('categories.search_placeholder', 'Search categories…')}
           value={search}
           onChange={e => setSearch(e.target.value)}
           style={{ maxWidth: 320 }}
@@ -179,10 +182,10 @@ export default function CategoriesPage() {
         <div className="card">
           <div className="empty-state" style={{ padding: 48, textAlign: 'center', color: 'var(--text-secondary)' }}>
             <div style={{ fontSize: '2.5rem', marginBottom: 12 }}>🗂️</div>
-            <div>No categories yet</div>
+            <div>{t('categories.no_data', 'No categories yet')}</div>
             {isAdmin && (
               <button className="btn btn-primary btn-sm" style={{ marginTop: 12 }} onClick={() => setModal({ data: null })}>
-                + Add First Category
+                {t('categories.add_first', '+ Add First Category')}
               </button>
             )}
           </div>
@@ -200,20 +203,20 @@ export default function CategoriesPage() {
                   <div className="category-slug">/{cat.slug}</div>
                 </div>
                 {!cat.is_active && (
-                  <span className="badge badge-secondary" style={{ fontSize: '0.7rem' }}>Inactive</span>
+                  <span className="badge badge-secondary" style={{ fontSize: '0.7rem' }}>{t('users.inactive', 'Inactive')}</span>
                 )}
               </div>
               {cat.description && (
                 <div className="category-description">{cat.description}</div>
               )}
               <div className="category-card-footer">
-                <span className="category-order">Order: {cat.sort_order}</span>
+                <span className="category-order">{t('categories.order', 'Order: ')}{cat.sort_order}</span>
                 {isAdmin && (
                   <div className="action-btns">
-                    <button className="btn-icon" title="Edit" onClick={() => setModal({ data: cat })}>
+                    <button className="btn-icon" title={t('common.edit', 'Edit')} onClick={() => setModal({ data: cat })}>
                       <Pencil size={14} />
                     </button>
-                    <button className="btn-icon btn-icon-danger" title="Delete" onClick={() => handleDelete(cat)}>
+                    <button className="btn-icon btn-icon-danger" title={t('common.delete', 'Delete')} onClick={() => handleDelete(cat)}>
                       <Trash2 size={14} />
                     </button>
                   </div>

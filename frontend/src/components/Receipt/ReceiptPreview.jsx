@@ -1,5 +1,4 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
-import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import Receipt from './Receipt'
 import ReceiptA4 from './ReceiptA4'
@@ -118,25 +117,6 @@ export default function ReceiptPreview({ invoice, shopInfo, onClose, autoPrint =
         </div>
       </div>
 
-      {/* Hidden print portal (always in DOM, invisible on screen) */}
-      {printPortalRef.current &&
-        createPortal(
-          paperWidth === 'A4' ? (
-            <ReceiptA4
-              invoice={invoice}
-              shopInfo={shopInfo}
-            />
-          ) : (
-            <Receipt
-              invoice={invoice}
-              shopInfo={shopInfo}
-              paperWidth={paperWidth}
-              loyaltySettings={loyaltySettings}
-            />
-          ),
-          printPortalRef.current
-        )
-      }
     </div>
   )
 }

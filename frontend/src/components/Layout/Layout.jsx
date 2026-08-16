@@ -24,7 +24,7 @@ const NAV_SECTIONS = [
     label: 'Inventory',
     items: [
       { to: '/products',   module: 'products',  label: 'nav.products',    icon: Package },
-      { to: '/categories', module: 'products',  label: 'Categories',      icon: Tags },
+      { to: '/categories', module: 'products',  label: 'nav.categories',  icon: Tags },
       { to: '/suppliers',  module: 'suppliers', label: 'nav.suppliers',   icon: Truck },
       { to: '/purchases',  module: 'purchases', label: 'nav.purchases',   icon: ShoppingBag },
     ],
@@ -33,7 +33,7 @@ const NAV_SECTIONS = [
     label: 'Management',
     items: [
       { to: '/customers', module: 'customers', label: 'nav.customers', icon: Users },
-      { to: '/expenses',  module: 'expenses',  label: 'Expenses',      icon: DollarSign },
+      { to: '/expenses',  module: 'expenses',  label: 'nav.expenses',  icon: DollarSign },
       { to: '/reports',   module: 'reports',   label: 'nav.reports',   icon: BarChart3 },
     ],
   },
@@ -41,10 +41,10 @@ const NAV_SECTIONS = [
     label: 'Admin',
     adminOnly: true,
     items: [
-      { to: '/shifts',     module: 'reports',   label: 'Shifts',       icon: Clock,    adminOnly: true },
-      { to: '/promotions', module: 'settings',  label: 'Promotions',   icon: Tag,      adminOnly: true },
-      { to: '/users',      module: 'users',     label: 'nav.users',    icon: UserCog,  adminOnly: true },
-      { to: '/settings',   module: 'settings',  label: 'nav.settings', icon: Settings, adminOnly: true },
+      { to: '/shifts',     module: 'reports',   label: 'nav.shifts',     icon: Clock,    adminOnly: true },
+      { to: '/promotions', module: 'settings',  label: 'nav.promotions', icon: Tag,      adminOnly: true },
+      { to: '/users',      module: 'users',     label: 'nav.users',      icon: UserCog,  adminOnly: true },
+      { to: '/settings',   module: 'settings',  label: 'nav.settings',   icon: Settings, adminOnly: true },
     ],
   },
 ]
