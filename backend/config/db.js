@@ -46,7 +46,20 @@ console.log(`✅ SQLite connected → ${dbPath}`);
  */
 function normalizeSql(sql) {
   // Remove MySQL-only FOR UPDATE lock hint (SQLite uses transactions instead)
-  return sql.replace(/\bFOR UPDATE\b/gi, '');
+  let clean = sql.replace(/\bFOR UPDATE\b/gi, '');
+  // Translate INSERT IGNORE to SQLite's INSERT OR IGNORE
+  clean = clean.replace(/\bINSERT\s+IGNORE\s+INTO\b/gi, 'INSERT OR IGNORE INTO');
+  // Translate NOW() to SQLite's datetime('now')
+  clean = clean.replace(/\bNOW\(\)/gi, "datetime('now')");
+  return clean;
+}
+
+/**
+ * SQLite strictly refuses booleans. mysql2 converts them.
+ * We map booleans to 1 / 0.
+ */
+function normalizeParams(params) {
+  return params.map(p => (typeof p === 'boolean' ? (p ? 1 : 0) : p));
 }
 
 /**
@@ -61,14 +74,15 @@ function execute(sql, params = []) {
     try {
       const cleanSql = normalizeSql(sql).trim();
       const upperSql = cleanSql.replace(/\s+/g, ' ').toUpperCase();
+      const safeParams = normalizeParams(params);
 
       if (upperSql.startsWith('SELECT') || upperSql.startsWith('WITH')) {
         const stmt = sqlite.prepare(cleanSql);
-        const rows = stmt.all(...params);
+        const rows = stmt.all(...safeParams);
         resolve([rows, {}]);
       } else {
         const stmt = sqlite.prepare(cleanSql);
-        const info = stmt.run(...params);
+        const info = stmt.run(...safeParams);
         // Mimic mysql2 result: attach insertId so service code like result.insertId works
         const result = { insertId: info.lastInsertRowid, affectedRows: info.changes };
         resolve([[result], {}]);
@@ -109,14 +123,15 @@ function getConnection() {
           try {
             const cleanSql = normalizeSql(sql).trim();
             const upperSql = cleanSql.replace(/\s+/g, ' ').toUpperCase();
+            const safeParams = normalizeParams(params);
 
             if (upperSql.startsWith('SELECT') || upperSql.startsWith('WITH')) {
               const stmt = sqlite.prepare(cleanSql);
-              const rows = stmt.all(...params);
+              const rows = stmt.all(...safeParams);
               res([rows, {}]);
             } else {
               const stmt = sqlite.prepare(cleanSql);
-              const info = stmt.run(...params);
+              const info = stmt.run(...safeParams);
               const result = { insertId: info.lastInsertRowid, affectedRows: info.changes };
               res([[result], {}]);
             }
