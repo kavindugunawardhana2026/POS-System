@@ -4,6 +4,7 @@ const db = require('../config/db');
 
 async function getMetrics() {
   const offsetMinutes = -new Date().getTimezoneOffset();
+  const offsetStr = offsetMinutes + ' minutes';
 
   // Sales and orders today
   const [[sales]] = await db.execute(
@@ -11,17 +12,17 @@ async function getMetrics() {
        COALESCE(SUM(total_amount), 0) AS total_sales,
        COUNT(invoice_id) AS total_orders
      FROM Invoices
-     WHERE DATE(DATE_ADD(created_at, INTERVAL ? MINUTE)) = DATE(DATE_ADD(NOW(), INTERVAL ? MINUTE))
+     WHERE DATE(created_at, ?) = DATE('now', ?)
        AND status != 'cancelled' AND status != 'void' AND deleted_at IS NULL`,
-    [offsetMinutes, offsetMinutes]
+    [offsetStr, offsetStr]
   );
 
   // Returns today
   const [[returns]] = await db.execute(
     `SELECT COUNT(return_id) AS total_returns
      FROM Returns
-     WHERE DATE(DATE_ADD(created_at, INTERVAL ? MINUTE)) = DATE(DATE_ADD(NOW(), INTERVAL ? MINUTE))`,
-    [offsetMinutes, offsetMinutes]
+     WHERE DATE(created_at, ?) = DATE('now', ?)`,
+    [offsetStr, offsetStr]
   );
 
   // Customers (all time, but we can return total for metric)
@@ -39,17 +40,19 @@ async function getMetrics() {
 
 async function getSalesTrend(days = 7) {
   const offsetMinutes = -new Date().getTimezoneOffset();
+  const offsetStr = offsetMinutes + ' minutes';
+  const daysStr = '-' + days + ' days';
   const [rows] = await db.execute(
     `SELECT 
-       DATE(DATE_ADD(created_at, INTERVAL ? MINUTE)) as date, 
+       DATE(created_at, ?) as date, 
        SUM(total_amount) as sales,
        COUNT(invoice_id) as orders
      FROM Invoices
-     WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
+     WHERE created_at >= DATETIME('now', ?)
        AND status != 'cancelled' AND status != 'void' AND deleted_at IS NULL
      GROUP BY date
      ORDER BY date ASC`,
-    [offsetMinutes, days]
+    [offsetStr, daysStr]
   );
 
   return rows.map(r => ({

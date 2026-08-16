@@ -7,7 +7,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "electron .",
+    "dev": "concurrently \"npm run dev:frontend\" \"wait-on tcp:5173 && electron .\"",
+    "dev:frontend": "cd frontend && npm run dev",
     "build:frontend": "cd frontend && npm run build",
     "migrate:sqlite": "node backend/scripts/sqlite-migrate.js",
     "pack": "npm run build:frontend && electron-builder --dir",
@@ -17,8 +18,10 @@
     "firebase": "^11.0.0"
   },
   "devDependencies": {
+    "concurrently": "^10.0.5",
     "electron": "^33.0.0",
-    "electron-builder": "^25.0.0"
+    "electron-builder": "^25.0.0",
+    "wait-on": "^9.1.0"
   },
   "build": {
     "appId": "lk.positiq.pos",

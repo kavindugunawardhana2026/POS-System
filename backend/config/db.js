@@ -51,6 +51,8 @@ function normalizeSql(sql) {
   clean = clean.replace(/\bINSERT\s+IGNORE\s+INTO\b/gi, 'INSERT OR IGNORE INTO');
   // Translate NOW() to SQLite's datetime('now')
   clean = clean.replace(/\bNOW\(\)/gi, "datetime('now')");
+  // Translate CURDATE() to SQLite's date('now')
+  clean = clean.replace(/\bCURDATE\(\)/gi, "date('now')");
   return clean;
 }
 
