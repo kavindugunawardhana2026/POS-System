@@ -89,7 +89,8 @@ function startBackend() {
       : path.join(__dirname, '..', 'backend');
 
     const serverScript = path.join(backendDir, 'server.js');
-    const nodeExec     = process.execPath; // bundled Node inside Electron
+    const nodeExec     = IS_PROD ? process.execPath : 'node';
+    const runAsNodeEnv = IS_PROD ? { ELECTRON_RUN_AS_NODE: '1' } : {};
 
     backendProcess = spawn(nodeExec, [serverScript], {
       cwd: backendDir,
@@ -98,6 +99,7 @@ function startBackend() {
         PORT:           String(BACKEND_PORT),
         NODE_ENV:       IS_PROD ? 'production' : 'development',
         SQLITE_DB_PATH: SQLITE_DB_PATH,
+        ...runAsNodeEnv
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -144,11 +146,12 @@ function runMigrations() {
       : path.join(__dirname, '..', 'backend');
 
     const migrateScript = path.join(backendDir, 'scripts', 'sqlite-migrate.js');
-    const nodeExec      = process.execPath;
+    const nodeExec      = IS_PROD ? process.execPath : 'node';
+    const runAsNodeEnv  = IS_PROD ? { ELECTRON_RUN_AS_NODE: '1' } : {};
 
     const proc = spawn(nodeExec, [migrateScript], {
       cwd:   backendDir,
-      env:   { ...process.env, SQLITE_DB_PATH: SQLITE_DB_PATH },
+      env:   { ...process.env, SQLITE_DB_PATH: SQLITE_DB_PATH, ...runAsNodeEnv },
       stdio: 'pipe',
     });
 
