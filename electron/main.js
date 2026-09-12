@@ -168,6 +168,62 @@ function runMigrations() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Run seeder on first boot (only when DB is brand-new / Users table is empty)
+// ─────────────────────────────────────────────────────────────────────────────
+
+function runSeedIfNeeded() {
+  return new Promise((resolve) => {
+    // Check if the DB file already has users — if so, skip seeding
+    try {
+      const Database = require('better-sqlite3');
+      const db = new Database(SQLITE_DB_PATH);
+      const row = db.prepare('SELECT COUNT(*) AS cnt FROM Users').get();
+      db.close();
+      if (row && row.cnt > 0) {
+        console.log('[main] DB already has users — skipping seed.');
+        return resolve();
+      }
+    } catch (e) {
+      // Table doesn't exist yet — migrations may not have run
+      console.warn('[main] Could not check Users table, skipping seed check:', e.message);
+      return resolve();
+    }
+
+    console.log('[main] First boot detected — running seeder...');
+    const backendDir  = IS_PROD
+      ? path.join(process.resourcesPath, 'backend')
+      : path.join(__dirname, '..', 'backend');
+
+    const seedScript  = path.join(backendDir, 'seeders', 'seed.js');
+    const nodeExec    = IS_PROD ? process.execPath : 'node';
+    const runAsNodeEnv = IS_PROD ? { ELECTRON_RUN_AS_NODE: '1' } : {};
+
+    const proc = spawn(nodeExec, [seedScript], {
+      cwd:  backendDir,
+      env:  { ...process.env, SQLITE_DB_PATH: SQLITE_DB_PATH, NODE_ENV: IS_PROD ? 'production' : 'development', ...runAsNodeEnv },
+      stdio: 'pipe',
+    });
+
+    proc.stdout.on('data', d => process.stdout.write(`[seed] ${d}`));
+    proc.stderr.on('data', d => process.stderr.write(`[seed:err] ${d}`));
+
+    proc.on('exit', (code) => {
+      if (code === 0) {
+        console.log('[main] Seeding complete.');
+      } else {
+        console.warn(`[main] Seeder exited with code ${code} — app will still start.`);
+      }
+      resolve(); // Never block app start even if seed fails
+    });
+
+    proc.on('error', (err) => {
+      console.warn('[main] Seeder error:', err.message);
+      resolve();
+    });
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Load the React frontend
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -226,6 +282,9 @@ async function launchPOSApp(win) {
     app.quit();
     return;
   }
+
+  // Seed default data on first install (idempotent — skipped if users already exist)
+  await runSeedIfNeeded();
 
   try {
     await startBackend();

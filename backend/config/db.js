@@ -91,7 +91,7 @@ function execute(sql, params = []) {
         const info = stmt.run(...safeParams);
         // Mimic mysql2 result: attach insertId so service code like result.insertId works
         const result = { insertId: info.lastInsertRowid, affectedRows: info.changes };
-        resolve([[result], {}]);
+        resolve([result, {}]);
       }
     } catch (err) {
       reject(err);
@@ -139,7 +139,7 @@ function getConnection() {
               const stmt = sqlite.prepare(cleanSql);
               const info = stmt.run(...safeParams);
               const result = { insertId: info.lastInsertRowid, affectedRows: info.changes };
-              res([[result], {}]);
+              res([result, {}]);
             }
           } catch (err) {
             rej(err);
